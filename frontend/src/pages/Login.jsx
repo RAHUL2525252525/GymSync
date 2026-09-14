@@ -1,1059 +1,1049 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 
-export default function Login() {
-  const navigate = useNavigate();
-  const [mode, setMode] = useState("login"); // "login" | "register" | "forgot"
-  const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
-  const [forgotEmail, setForgotEmail] = useState("");
-  const [tempPassword, setTempPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.innerWidth <= 860 : false
+/* ---------------- Icons (hand-drawn, no external deps) ---------------- */
+
+const iconProps = {
+  width: 18,
+  height: 18,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+function IconDumbbell(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <path d="M4 9v6M2 10v4M20 9v6M22 10v4" />
+      <path d="M7 12h10" />
+      <rect x="5" y="7.5" width="3" height="9" rx="1" />
+      <rect x="16" y="7.5" width="3" height="9" rx="1" />
+    </svg>
   );
+}
+function IconOverview(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <path d="M4 20V10M12 20V4M20 20v-7" />
+    </svg>
+  );
+}
+function IconAttendance(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <rect x="3.5" y="4.5" width="17" height="16" rx="2.5" />
+      <path d="M3.5 9.5h17" />
+      <path d="M8 12.5l2.2 2.2L16 9.5" />
+    </svg>
+  );
+}
+function IconMembership(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <rect x="3.5" y="4.5" width="17" height="16" rx="2.5" />
+      <path d="M3.5 9.5h17M8 3v3M16 3v3" />
+    </svg>
+  );
+}
+function IconPayments(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <rect x="2.5" y="5.5" width="19" height="13" rx="2.2" />
+      <path d="M2.5 9.5h19" />
+      <path d="M6 14.5h4" />
+    </svg>
+  );
+}
+function IconPower(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <path d="M12 3.5v8" />
+      <path d="M7.5 6a7 7 0 1 0 9 0" />
+    </svg>
+  );
+}
+function IconVisits(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <path d="M3 12l4-7 4 11 3-7 3 4h4" />
+    </svg>
+  );
+}
+function IconCoin(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5v9M9.3 9.6c0-1.2 1.2-2.1 2.7-2.1s2.7.8 2.7 2c0 2.6-5.4 1.3-5.4 3.9 0 1.2 1.2 2.1 2.7 2.1s2.7-.9 2.7-2.1" />
+    </svg>
+  );
+}
+function IconBadge(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <circle cx="12" cy="9" r="5.5" />
+      <path d="M8.5 13.8L7 21l5-2.6L17 21l-1.5-7.2" />
+    </svg>
+  );
+}
+function IconFlame(props) {
+  return (
+    <svg {...iconProps} {...props}>
+      <path d="M12 2.5c.6 2.4-1.8 3.6-1.8 6.3a2.8 2.8 0 0 0 5.6 0c0-.7-.4-1.2-.4-1.2.7 2.7-.7 4.4-2.1 4.4a3.3 3.3 0 0 1-3.3-3.3c0-2.8 2-3.6 2-6.2z" />
+      <path d="M8.5 13c-.6 1.4-.8 2.4-.8 3.5a4.3 4.3 0 0 0 8.6 0c0-2-1.1-3.4-1.9-4.6.2 2-.6 3.4-1.7 3.4A2.1 2.1 0 0 1 10.6 13c0-1 .5-1.6.5-1.6" />
+    </svg>
+  );
+}
+
+/* ---------------- Small helpers (pure, client-side only) ---------------- */
+
+// Purely a motivational visual target — not fetched from the backend.
+const WEEKLY_GOAL_DAYS = 5;
+
+function useCountUp(target, duration = 700) {
+  const [value, setValue] = useState(0);
+  const isNumber = typeof target === "number" && !Number.isNaN(target);
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 860);
+    if (!isNumber) return undefined;
+    let frame;
+    let start;
+    const from = 0;
+    const to = target;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(from + (to - from) * eased);
+      if (progress < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, duration, isNumber]);
+
+  return isNumber ? value : target;
+}
+
+function computeStreak(attendance) {
+  if (!attendance.length) return 0;
+  const days = new Set(attendance.map((a) => new Date(a.check_in).toDateString()));
+  let streak = 0;
+  const cursor = new Date();
+  while (days.has(cursor.toDateString())) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+function computeWeekly(attendance) {
+  const today = new Date();
+  const days = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dayStr = d.toDateString();
+    const count = attendance.filter((a) => new Date(a.check_in).toDateString() === dayStr).length;
+    days.push({
+      label: d.toLocaleDateString(undefined, { weekday: "narrow" }),
+      count,
+      isToday: i === 0,
+    });
+  }
+  return days;
+}
+
+/* ------------------------------------------------------------------------ */
+
+export default function UserDashboard() {
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("overview");
+  const [summary, setSummary] = useState(null);
+  const [attendance, setAttendance] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [memberships, setMemberships] = useState([]);
+  const [message, setMessage] = useState("");
+  const [checkingIn, setCheckingIn] = useState(false);
+  const [checkingOutId, setCheckingOutId] = useState(null);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth <= 768 : false
+  );
+  const [bump, setBump] = useState(false);
+
+  const name = localStorage.getItem("name");
+  const prevAttendanceCount = useRef(null);
+
+  const loadAll = async () => {
+    try {
+      const [summaryRes, attendanceRes, paymentsRes, membershipsRes] = await Promise.all([
+        api.get("/api/dashboard/user"),
+        api.get("/api/attendance/me"),
+        api.get("/api/payments/me"),
+        api.get("/api/memberships/me"),
+      ]);
+      setSummary(summaryRes.data);
+      setAttendance(attendanceRes.data);
+      setPayments(paymentsRes.data);
+      setMemberships(membershipsRes.data);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        handleLogout();
+      }
+    }
+  };
+
+  // Lightweight background refresh — only the stat summary, so check-in/out
+  // never has to wait on a full 4-endpoint reload to feel "done".
+  const refreshSummary = async () => {
+    try {
+      const res = await api.get("/api/dashboard/user");
+      setSummary(res.data);
+    } catch {
+      // silent — the optimistic UI state stays as the source of truth
+    }
+  };
+
+  useEffect(() => {
+    loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // Fires a one-off bump animation on the visits stat whenever attendance
+  // changes as a result of the user's own action (check-in/out), never on
+  // the initial load.
+  useEffect(() => {
+    if (prevAttendanceCount.current === null) {
+      prevAttendanceCount.current = attendance.length;
+      return;
+    }
+    if (attendance.length !== prevAttendanceCount.current) {
+      setBump(true);
+      const t = setTimeout(() => setBump(false), 520);
+      prevAttendanceCount.current = attendance.length;
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [attendance.length]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  const flash = (msg) => {
+    setMessage(msg);
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  const handleCheckIn = async () => {
+    if (checkingIn) return;
+    setCheckingIn(true);
+
+    // Optimistic: show the check-in immediately, reconcile with the server after.
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticRecord = {
+      id: optimisticId,
+      check_in: new Date().toISOString(),
+      check_out: null,
+    };
+    setAttendance((prev) => [...prev, optimisticRecord]);
 
     try {
-      const response = await api.post("/api/auth/login", {
-        email: form.email,
-        password: form.password,
-      });
-
-      const { access_token, role, name, user_id } = response.data;
-
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("role", role);
-      localStorage.setItem("name", name);
-      localStorage.setItem("user_id", user_id);
-
-      if (role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-          "Login failed. Please check your credentials."
+      const res = await api.post("/api/attendance/checkin");
+      const real = res?.data;
+      setAttendance((prev) =>
+        prev.map((a) => (a.id === optimisticId ? (real && real.id ? real : a) : a))
       );
+      flash("Checked in successfully!");
+      refreshSummary();
+    } catch (err) {
+      setAttendance((prev) => prev.filter((a) => a.id !== optimisticId));
+      flash(err.response?.data?.detail || "Check-in failed");
     } finally {
-      setLoading(false);
+      setCheckingIn(false);
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  const handleCheckOut = async (attendanceId) => {
+    if (checkingOutId) return;
+    setCheckingOutId(attendanceId);
+
+    const checkOutTime = new Date().toISOString();
+    let previousValue = null;
+    setAttendance((prev) =>
+      prev.map((a) => {
+        if (a.id === attendanceId) {
+          previousValue = a.check_out;
+          return { ...a, check_out: checkOutTime };
+        }
+        return a;
+      })
+    );
 
     try {
-      await api.post("/api/auth/register", {
-        name: form.name,
-        email: form.email,
-        password: form.password,
-        phone: form.phone,
-      });
-
-      setMode("login");
-      setError("Registration successful. Please log in.");
+      await api.put(`/api/attendance/checkout/${attendanceId}`);
+      flash("Checked out successfully!");
+      refreshSummary();
     } catch (err) {
-      setError(err.response?.data?.detail || "Registration failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setError("");
-    setTempPassword("");
-    setLoading(true);
-
-    try {
-      const response = await api.post("/api/auth/forgot-password", {
-        email: forgotEmail,
-      });
-
-      setTempPassword(response.data.temporary_password);
-    } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-          "Could not reset password for this email."
+      setAttendance((prev) =>
+        prev.map((a) => (a.id === attendanceId ? { ...a, check_out: previousValue } : a))
       );
+      flash(err.response?.data?.detail || "Check-out failed");
     } finally {
-      setLoading(false);
+      setCheckingOutId(null);
     }
   };
 
-  const switchMode = (newMode) => {
-    setMode(newMode);
-    setError("");
-    setTempPassword("");
-  };
+  const lastAttendance = attendance[attendance.length - 1];
+  const canCheckIn = !lastAttendance || lastAttendance.check_out;
+
+  const streak = computeStreak(attendance);
+  const weekly = computeWeekly(attendance);
+  const activeDaysThisWeek = weekly.filter((d) => d.count > 0).length;
+  const maxDayCount = Math.max(1, ...weekly.map((d) => d.count));
+  const goalProgress = Math.min(activeDaysThisWeek / WEEKLY_GOAL_DAYS, 1);
+
+  const animatedVisits = useCountUp(summary ? summary.total_visits : 0);
+  const animatedPaid = useCountUp(summary ? summary.total_paid : 0);
+
+  const tabs = [
+    { id: "overview", label: "Overview", icon: <IconOverview /> },
+    { id: "attendance", label: "Attendance", icon: <IconAttendance /> },
+    { id: "membership", label: "Membership", icon: <IconMembership /> },
+    { id: "payments", label: "Payments", icon: <IconPayments /> },
+  ];
 
   const s = getStyles(isMobile);
+
+  const goToTab = (id) => setTab(id);
+  const onNavKeyDown = (e, id) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      goToTab(id);
+    }
+  };
 
   return (
     <div style={s.page}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap');
-
-        * {
-          box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap');
+        .gs-table-wrapper { -webkit-overflow-scrolling: touch; }
+        .gs-nav-item:hover { background: rgba(255,255,255,0.05); }
+        .gs-nav-item:focus-visible,
+        .gs-btn:focus-visible,
+        .gs-logout:focus-visible,
+        .gs-bottom-tab:focus-visible {
+          outline: 2px solid #ff5a1f;
+          outline-offset: 2px;
         }
-
-        @keyframes gs-pulse-run {
-          0% {
-            stroke-dashoffset: 300;
-          }
-
-          45% {
-            stroke-dashoffset: 0;
-          }
-
-          100% {
-            stroke-dashoffset: -300;
-          }
+        .gs-btn { transition: transform 0.12s ease, box-shadow 0.12s ease; }
+        .gs-btn:active { transform: scale(0.97); }
+        .gs-bar { transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+        @keyframes gs-toast-in {
+          from { opacity: 0; transform: translateY(-6px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-        @keyframes gs-dot-fade {
-          0%, 100% {
-            opacity: 0.35;
-          }
-
-          50% {
-            opacity: 1;
-          }
+        @keyframes gs-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(200,255,77,0.55); }
+          70% { box-shadow: 0 0 0 7px rgba(200,255,77,0); }
+          100% { box-shadow: 0 0 0 0 rgba(200,255,77,0); }
         }
-
-        .gs-pulse-path {
-          stroke-dasharray: 300;
-          animation: gs-pulse-run 3.2s linear infinite;
+        @keyframes gs-bump {
+          0% { transform: scale(1); }
+          35% { transform: scale(1.04); }
+          100% { transform: scale(1); }
         }
-
-        .gs-live-dot {
-          animation: gs-dot-fade 1.6s ease-in-out infinite;
+        @keyframes gs-skeleton {
+          0% { background-position: -200px 0; }
+          100% { background-position: calc(200px + 100%) 0; }
         }
-
-        .gs-primary-btn:hover:not(:disabled) {
-          background: #ffffff !important;
-          color: #0b0b0c !important;
+        .gs-skeleton-block {
+          background: linear-gradient(90deg, #1a1d21 25%, #22262b 37%, #1a1d21 63%);
+          background-size: 400px 100%;
+          animation: gs-skeleton 1.4s ease-in-out infinite;
         }
-
-        .gs-segment-btn:hover {
-          color: #0b0b0c;
+        .gs-bump { animation: gs-bump 0.5s ease; }
+        @media (prefers-reduced-motion: reduce) {
+          .gs-btn, .gs-pulse-dot, .gs-bump, .gs-skeleton-block, .gs-bar { animation: none !important; transition: none !important; }
         }
-
-        .gs-link-pill:hover {
-          background: #fff0e0;
-        }
-
-        input.gs-input::placeholder {
-          color: #b7ab9c;
-        }
-
-        input.gs-input:focus {
-          border-bottom-color: #ff7a1a !important;
-        }
-
-        button {
-          font-family: inherit;
+        @media (min-width: 769px) and (max-width: 1180px) {
+          .gs-content-inner { padding: 0 4px; }
         }
       `}</style>
 
-      {/* =========================
-          LEFT HERO PANEL
-      ========================= */}
-
-      <div style={s.heroPanel}>
-        <div style={s.heroTopRow}>
-          <div style={s.heroBadge}>💪</div>
-
-          <span style={s.heroBrandSmall}>
-            GymSync
-          </span>
-        </div>
-
-        <div style={s.heroBody}>
-          <h1 style={s.wordmark}>
-            TRAIN.
-            <br />
-            TRACK.
-            <br />
-            REPEAT.
-          </h1>
-
-          <p style={s.heroTagline}>
-            One place for check-ins, memberships and payments — built for
-            people who don't skip leg day.
-          </p>
+      <div style={s.sidebar}>
+        <div style={s.brandRow}>
+          <div style={s.logoBadge}>
+            <IconDumbbell width={20} height={20} />
+          </div>
+          <div>
+            <h2 style={s.logo}>Gym Tracker</h2>
+            {!isMobile && <p style={s.welcomeText}>Welcome, {name}</p>}
+          </div>
+          {isMobile && (
+            <button
+              style={s.logoutBtnMobile}
+              className="gs-logout"
+              onClick={handleLogout}
+              aria-label="Log out"
+            >
+              <IconPower width={16} height={16} />
+            </button>
+          )}
         </div>
 
         {!isMobile && (
-          <div style={s.pulseWrap}>
-            <svg
-              viewBox="0 0 300 60"
-              style={s.pulseSvg}
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 30 H90 L105 10 L120 50 L135 18 L150 42 L165 30 H300"
-                fill="none"
-                stroke="rgba(255,122,26,0.22)"
-                strokeWidth="2"
-              />
+          <>
+            <nav style={s.nav}>
+              {tabs.map((t) => (
+                <div
+                  key={t.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-current={tab === t.id ? "page" : undefined}
+                  onClick={() => goToTab(t.id)}
+                  onKeyDown={(e) => onNavKeyDown(e, t.id)}
+                  className="gs-nav-item"
+                  style={{ ...s.navItem, ...(tab === t.id ? s.navItemActive : {}) }}
+                >
+                  <span style={s.navIcon}>{t.icon}</span>
+                  {t.label}
+                </div>
+              ))}
+            </nav>
 
-              <path
-                className="gs-pulse-path"
-                d="M0 30 H90 L105 10 L120 50 L135 18 L150 42 L165 30 H300"
-                fill="none"
-                stroke="#ff7a1a"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-
-            <div style={s.pulseCaption}>
-              <span
-                className="gs-live-dot"
-                style={s.liveDot}
-              ></span>
-
-              Live activity feed
+            <div style={s.streakChip}>
+              <IconFlame width={16} height={16} color="#ff5a1f" />
+              <span>
+                {streak > 0 ? `${streak} day streak` : "Start your streak today"}
+              </span>
             </div>
-          </div>
+
+            <button style={s.logoutBtn} className="gs-logout" onClick={handleLogout}>
+              <IconPower width={15} height={15} />
+              Log out
+            </button>
+          </>
         )}
       </div>
 
-      {/* =========================
-          RIGHT FORM PANEL
-      ========================= */}
-
-      <div style={s.formPanel}>
-        <div style={s.formInner}>
-
-          <div style={s.formHeadRow}>
-            <h2 style={s.formTitle}>
-              {mode === "login" && "Welcome back"}
-              {mode === "register" && "Create your account"}
-              {mode === "forgot" && "Reset your password"}
-            </h2>
-
-            <p style={s.formSubtitle}>
-              {mode === "login" &&
-                "Sign in to pick up where you left off."}
-
-              {mode === "register" &&
-                "Join the floor. It takes less than a minute."}
-
-              {mode === "forgot" &&
-                "We'll issue a temporary password for this email."}
-            </p>
-          </div>
-
-          {/* LOGIN / REGISTER SWITCH */}
-
-          {mode !== "forgot" && (
-            <div style={s.segmentSwitcher}>
-              <button
-                type="button"
-                className="gs-segment-btn"
-                style={{
-                  ...s.segmentBtn,
-                  ...(mode === "login"
-                    ? s.segmentBtnActive
-                    : {}),
-                }}
-                onClick={() => switchMode("login")}
-              >
-                Login
-              </button>
-
-              <button
-                type="button"
-                className="gs-segment-btn"
-                style={{
-                  ...s.segmentBtn,
-                  ...(mode === "register"
-                    ? s.segmentBtnActive
-                    : {}),
-                }}
-                onClick={() => switchMode("register")}
-              >
-                Register
-              </button>
-            </div>
+      <div style={s.content}>
+        <div className="gs-content-inner">
+          {message && (
+            <div style={{ ...s.toast, animation: "gs-toast-in 0.2s ease" }}>{message}</div>
           )}
 
-          {/* ERROR / SUCCESS MESSAGE */}
+          {tab === "overview" && !summary && <OverviewSkeleton s={s} />}
 
-          {error && (
-            <div
-              style={{
-                ...s.banner,
-                ...(error
-                  .toLowerCase()
-                  .includes("successful")
-                  ? s.bannerSuccess
-                  : s.bannerError),
-              }}
-            >
-              {error}
-            </div>
-          )}
+          {tab === "overview" && summary && (
+            <div>
+              <h1 style={s.heading}>Welcome back, {summary.name}</h1>
 
-          {/* TEMP PASSWORD */}
-
-          {tempPassword && (
-            <div style={s.tempPasswordBox}>
-              <p style={s.tempPasswordLabel}>
-                Your temporary password
-              </p>
-
-              <p style={s.tempPasswordValue}>
-                {tempPassword}
-              </p>
-
-              <p style={s.tempPasswordHint}>
-                Log in with this, then update your password.
-              </p>
-            </div>
-          )}
-
-          {/* =========================
-              FORGOT PASSWORD
-          ========================= */}
-
-          {mode === "forgot" ? (
-            <form
-              onSubmit={handleForgotPassword}
-              style={s.form}
-            >
-              <label style={s.fieldLabel}>
-                Registered email
-
-                <input
-                  className="gs-input"
-                  style={s.input}
-                  type="email"
-                  placeholder="you@example.com"
-                  value={forgotEmail}
-                  onChange={(e) =>
-                    setForgotEmail(e.target.value)
-                  }
-                  required
-                  onFocus={(e) =>
-                    (e.target.style.borderBottomColor =
-                      "#ff7a1a")
-                  }
-                  onBlur={(e) =>
-                    (e.target.style.borderBottomColor =
-                      "#e4ddd2")
-                  }
-                />
-              </label>
-
-              <button
-                className="gs-primary-btn"
-                style={{
-                  ...s.button,
-                  ...(loading
-                    ? s.buttonDisabled
-                    : {}),
-                }}
-                type="submit"
-                disabled={loading}
-              >
-                {loading
-                  ? "Please wait..."
-                  : "Send reset password"}
-              </button>
-            </form>
-          ) : (
-
-            /* =========================
-               LOGIN / REGISTER FORM
-            ========================= */
-
-            <form
-              onSubmit={
-                mode === "register"
-                  ? handleRegister
-                  : handleLogin
-              }
-              style={s.form}
-            >
-
-              {/* REGISTER FIELDS */}
-
-              {mode === "register" && (
-                <>
-                  <label style={s.fieldLabel}>
-                    Full name
-
-                    <input
-                      className="gs-input"
-                      style={s.input}
-                      type="text"
-                      name="name"
-                      placeholder="Jordan Lee"
-                      value={form.name}
-                      onChange={handleChange}
-                      required
-                      onFocus={(e) =>
-                        (e.target.style.borderBottomColor =
-                          "#ff7a1a")
-                      }
-                      onBlur={(e) =>
-                        (e.target.style.borderBottomColor =
-                          "#e4ddd2")
-                      }
-                    />
-                  </label>
-
-                  <label style={s.fieldLabel}>
-                    Phone number
-
-                    <input
-                      className="gs-input"
-                      style={s.input}
-                      type="text"
-                      name="phone"
-                      placeholder="98765 43210"
-                      value={form.phone}
-                      onChange={handleChange}
-                      onFocus={(e) =>
-                        (e.target.style.borderBottomColor =
-                          "#ff7a1a")
-                      }
-                      onBlur={(e) =>
-                        (e.target.style.borderBottomColor =
-                          "#e4ddd2")
-                      }
-                    />
-                  </label>
-                </>
-              )}
-
-              {/* EMAIL */}
-
-              <label style={s.fieldLabel}>
-                Email address
-
-                <input
-                  className="gs-input"
-                  style={s.input}
-                  type="email"
-                  name="email"
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                  onFocus={(e) =>
-                    (e.target.style.borderBottomColor =
-                      "#ff7a1a")
-                  }
-                  onBlur={(e) =>
-                    (e.target.style.borderBottomColor =
-                      "#e4ddd2")
-                  }
-                />
-              </label>
-
-              {/* PASSWORD */}
-
-              <label style={s.fieldLabel}>
-                Password
-
-                <div style={s.passwordWrapper}>
-                  <input
-                    className="gs-input"
-                    style={{
-                      ...s.input,
-                      ...s.passwordInput,
-                    }}
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
-                    name="password"
-                    placeholder="••••••••"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    onFocus={(e) =>
-                      (e.target.style.borderBottomColor =
-                        "#ff7a1a")
-                    }
-                    onBlur={(e) =>
-                      (e.target.style.borderBottomColor =
-                        "#e4ddd2")
-                    }
+              <div style={s.statsGrid}>
+                <div className={bump ? "gs-bump" : ""}>
+                  <StatCard
+                    label="Total visits"
+                    value={Math.round(animatedVisits)}
+                    icon={<IconVisits width={20} height={20} />}
+                    accent="#ff5a1f"
+                    s={s}
                   />
-
-                  <span
-                    style={s.eyeIcon}
-                    onClick={() =>
-                      setShowPassword(!showPassword)
-                    }
-                    role="button"
-                    aria-label={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
-                    }
-                  >
-                    {showPassword ? (
-                      <EyeOffIcon />
-                    ) : (
-                      <EyeIcon />
-                    )}
-                  </span>
                 </div>
-              </label>
+                <StatCard
+                  label="Total paid"
+                  value={`₹${animatedPaid.toFixed(2)}`}
+                  icon={<IconCoin width={20} height={20} />}
+                  accent="#c8ff4d"
+                  s={s}
+                />
+                <StatCard
+                  label="Membership status"
+                  value={summary.active_membership ? summary.active_membership.status : "No active plan"}
+                  icon={<IconBadge width={20} height={20} />}
+                  accent={summary.active_membership ? "#4dd0ff" : "#6b7078"}
+                  s={s}
+                />
+              </div>
 
-              {/* FORGOT PASSWORD */}
+              <div style={s.midGrid}>
+                <div style={s.checkInBox}>
+                  <div style={s.checkInLeft}>
+                    {!canCheckIn && (
+                      <span style={s.pulseDot} className="gs-pulse-dot" aria-hidden="true" />
+                    )}
+                    <p style={s.checkInText}>
+                      {canCheckIn ? "Ready to hit the gym today?" : "You're currently checked in."}
+                    </p>
+                  </div>
+                  {canCheckIn ? (
+                    <button
+                      style={s.primaryBtn}
+                      className="gs-btn"
+                      onClick={handleCheckIn}
+                      disabled={checkingIn}
+                    >
+                      {checkingIn ? "Checking in…" : "Check in"}
+                    </button>
+                  ) : (
+                    <button
+                      style={s.dangerBtn}
+                      className="gs-btn"
+                      onClick={() => handleCheckOut(lastAttendance.id)}
+                      disabled={checkingOutId === lastAttendance.id}
+                    >
+                      {checkingOutId === lastAttendance.id ? "Checking out…" : "Check out"}
+                    </button>
+                  )}
+                </div>
 
-              {mode === "login" && (
-                <span
-                  style={s.forgotLink}
-                  onClick={() =>
-                    switchMode("forgot")
-                  }
-                >
-                  Forgot password?
-                </span>
-              )}
+                <div style={s.weekCard}>
+                  <div style={s.weekCardTop}>
+                    <div>
+                      <p style={s.weekCardLabel}>This week</p>
+                      <p style={s.weekCardValue}>
+                        {activeDaysThisWeek}/{WEEKLY_GOAL_DAYS} days
+                      </p>
+                    </div>
+                    <GoalRing progress={goalProgress} />
+                  </div>
 
-              {/* SUBMIT */}
+                  <div style={s.weekBars}>
+                    {weekly.map((d, i) => (
+                      <div key={i} style={s.weekBarCol}>
+                        <div style={s.weekBarTrack}>
+                          <div
+                            className="gs-bar"
+                            style={{
+                              ...s.weekBarFill,
+                              height: `${(d.count / maxDayCount) * 100}%`,
+                              background: d.isToday ? "#ff5a1f" : "#3a3f45",
+                            }}
+                          />
+                        </div>
+                        <span style={{ ...s.weekBarLabel, color: d.isToday ? "#ff5a1f" : "#6b7078" }}>
+                          {d.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
 
-              <button
-                className="gs-primary-btn"
-                style={{
-                  ...s.button,
-                  ...(loading
-                    ? s.buttonDisabled
-                    : {}),
-                }}
-                type="submit"
-                disabled={loading}
-              >
-                {loading
-                  ? "Please wait..."
-                  : mode === "register"
-                  ? "Create account"
-                  : "Login"}
-              </button>
-            </form>
+                  <div style={s.streakRow}>
+                    <IconFlame width={15} height={15} color="#ff5a1f" />
+                    <span>
+                      {streak > 0
+                        ? `${streak}-day streak — keep it going`
+                        : "No active streak yet — check in to start one"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
-          {/* =========================
-              BOTTOM MODE SWITCH
-          ========================= */}
+          {tab === "attendance" && (
+            <div>
+              <h1 style={s.heading}>My attendance</h1>
+              {isMobile ? (
+                <CardList
+                  s={s}
+                  emptyText="No attendance records yet."
+                  items={attendance.slice().reverse()}
+                  renderItem={(a) => (
+                    <div style={s.recordCard} key={a.id}>
+                      <div style={s.recordCardRow}>
+                        <span style={s.recordCardLabel}>Check-in</span>
+                        <span style={s.recordCardValue}>{new Date(a.check_in).toLocaleString()}</span>
+                      </div>
+                      <div style={s.recordCardRow}>
+                        <span style={s.recordCardLabel}>Check-out</span>
+                        <span style={s.recordCardValue}>
+                          {a.check_out ? new Date(a.check_out).toLocaleString() : "Still active"}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                />
+              ) : (
+                <div style={s.tableWrapper} className="gs-table-wrapper">
+                  <table style={s.table}>
+                    <thead>
+                      <tr>
+                        <th style={s.th}>Check-in</th>
+                        <th style={s.th}>Check-out</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {attendance.slice().reverse().map((a) => (
+                        <tr key={a.id} style={s.tr}>
+                          <td style={s.td}>{new Date(a.check_in).toLocaleString()}</td>
+                          <td style={s.td}>
+                            {a.check_out ? new Date(a.check_out).toLocaleString() : "Still active"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {attendance.length === 0 && <p style={s.emptyText}>No attendance records yet.</p>}
+                </div>
+              )}
+            </div>
+          )}
 
-          <p style={s.toggleText}>
+          {tab === "membership" && (
+            <div>
+              <h1 style={s.heading}>My membership</h1>
+              {isMobile ? (
+                <CardList
+                  s={s}
+                  emptyText="No membership assigned yet. Contact the admin."
+                  items={memberships}
+                  renderItem={(m) => (
+                    <div style={s.recordCard} key={m.id}>
+                      <div style={s.recordCardTopRow}>
+                        <span style={s.recordCardTitle}>Plan {m.plan_id}</span>
+                        <span
+                          style={{
+                            ...s.statusBadge,
+                            ...(m.status === "active" ? s.statusActive : s.statusInactive),
+                          }}
+                        >
+                          {m.status}
+                        </span>
+                      </div>
+                      <div style={s.recordCardRow}>
+                        <span style={s.recordCardLabel}>Start</span>
+                        <span style={s.recordCardValue}>{m.start_date}</span>
+                      </div>
+                      <div style={s.recordCardRow}>
+                        <span style={s.recordCardLabel}>End</span>
+                        <span style={s.recordCardValue}>{m.end_date}</span>
+                      </div>
+                    </div>
+                  )}
+                />
+              ) : (
+                <div style={s.tableWrapper} className="gs-table-wrapper">
+                  <table style={s.table}>
+                    <thead>
+                      <tr>
+                        <th style={s.th}>Plan ID</th>
+                        <th style={s.th}>Start date</th>
+                        <th style={s.th}>End date</th>
+                        <th style={s.th}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {memberships.map((m) => (
+                        <tr key={m.id} style={s.tr}>
+                          <td style={s.td}>{m.plan_id}</td>
+                          <td style={s.td}>{m.start_date}</td>
+                          <td style={s.td}>{m.end_date}</td>
+                          <td style={s.td}>
+                            <span
+                              style={{
+                                ...s.statusBadge,
+                                ...(m.status === "active" ? s.statusActive : s.statusInactive),
+                              }}
+                            >
+                              {m.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {memberships.length === 0 && (
+                    <p style={s.emptyText}>No membership assigned yet. Contact the admin.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
-            {mode === "forgot" && (
-              <span
-                className="gs-link-pill"
-                style={s.toggleLink}
-                onClick={() =>
-                  switchMode("login")
-                }
-              >
-                ← Back to login
-              </span>
-            )}
-
-            {mode === "login" && (
-              <>
-                New member?{" "}
-
-                <span
-                  className="gs-link-pill"
-                  style={s.toggleLink}
-                  onClick={() =>
-                    switchMode("register")
-                  }
-                >
-                  Register here
-                </span>
-              </>
-            )}
-
-            {mode === "register" && (
-              <>
-                Already have an account?{" "}
-
-                <span
-                  className="gs-link-pill"
-                  style={s.toggleLink}
-                  onClick={() =>
-                    switchMode("login")
-                  }
-                >
-                  Login here
-                </span>
-              </>
-            )}
-
-          </p>
-
-          {/* ADMIN HINT */}
-
-          <div style={s.hint}>
-            <strong style={{ color: "#e2651a" }}>
-              Admin login:
-            </strong>{" "}
-            use your admin email &amp; password configured
-            in the backend .env
-          </div>
-
+          {tab === "payments" && (
+            <div>
+              <h1 style={s.heading}>My payments</h1>
+              {isMobile ? (
+                <CardList
+                  s={s}
+                  emptyText="No payments recorded yet."
+                  items={payments}
+                  renderItem={(p) => (
+                    <div style={s.recordCard} key={p.id}>
+                      <div style={s.recordCardTopRow}>
+                        <span style={s.recordCardTitle}>₹{p.amount}</span>
+                        <span style={{ ...s.statusBadge, ...s.statusActive }}>{p.status}</span>
+                      </div>
+                      <div style={s.recordCardRow}>
+                        <span style={s.recordCardLabel}>Date</span>
+                        <span style={s.recordCardValue}>
+                          {new Date(p.payment_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                />
+              ) : (
+                <div style={s.tableWrapper} className="gs-table-wrapper">
+                  <table style={s.table}>
+                    <thead>
+                      <tr>
+                        <th style={s.th}>Amount</th>
+                        <th style={s.th}>Date</th>
+                        <th style={s.th}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((p) => (
+                        <tr key={p.id} style={s.tr}>
+                          <td style={s.td}>₹{p.amount}</td>
+                          <td style={s.td}>{new Date(p.payment_date).toLocaleDateString()}</td>
+                          <td style={s.td}>
+                            <span style={{ ...s.statusBadge, ...s.statusActive }}>{p.status}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {payments.length === 0 && <p style={s.emptyText}>No payments recorded yet.</p>}
+                </div>
+              )}
+            </div>
+          )}
         </div>
+      </div>
+
+      {isMobile && (
+        <nav style={s.bottomNav} aria-label="Primary">
+          {tabs.map((t) => (
+            <div
+              key={t.id}
+              role="button"
+              tabIndex={0}
+              aria-current={tab === t.id ? "page" : undefined}
+              onClick={() => goToTab(t.id)}
+              onKeyDown={(e) => onNavKeyDown(e, t.id)}
+              className="gs-bottom-tab"
+              style={{ ...s.bottomTab, ...(tab === t.id ? s.bottomTabActive : {}) }}
+            >
+              {t.icon}
+              <span style={s.bottomTabLabel}>{t.label}</span>
+            </div>
+          ))}
+        </nav>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ label, value, icon, accent, s }) {
+  return (
+    <div style={{ ...s.statCard, borderLeftColor: accent }}>
+      <div style={{ ...s.statIconWrap, color: accent }}>{icon}</div>
+      <div>
+        <p style={s.statLabel}>{label}</p>
+        <h2 style={s.statValue}>{value}</h2>
       </div>
     </div>
   );
 }
 
-/* =====================================================
-   EYE ICON
-===================================================== */
-
-function EyeIcon() {
+function GoalRing({ progress }) {
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - progress);
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#ff7a1a"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-/* =====================================================
-   EYE OFF ICON
-===================================================== */
-
-function EyeOffIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#ff7a1a"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.8 21.8 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-      <line
-        x1="1"
-        y1="1"
-        x2="23"
-        y2="23"
+    <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+      <circle cx="28" cy="28" r={radius} fill="none" stroke="#24272b" strokeWidth="5" />
+      <circle
+        cx="28"
+        cy="28"
+        r={radius}
+        fill="none"
+        stroke="#ff5a1f"
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        transform="rotate(-90 28 28)"
+        style={{ transition: "stroke-dashoffset 0.5s ease" }}
       />
     </svg>
   );
 }
 
-/* =====================================================
-   STYLES
-===================================================== */
+function CardList({ items, renderItem, emptyText, s }) {
+  if (!items.length) {
+    return <p style={s.emptyText}>{emptyText}</p>;
+  }
+  return <div style={s.cardListWrap}>{items.map(renderItem)}</div>;
+}
+
+function OverviewSkeleton({ s }) {
+  return (
+    <div>
+      <div className="gs-skeleton-block" style={s.skeletonHeading} />
+      <div style={s.statsGrid}>
+        <div className="gs-skeleton-block" style={s.skeletonStatCard} />
+        <div className="gs-skeleton-block" style={s.skeletonStatCard} />
+        <div className="gs-skeleton-block" style={s.skeletonStatCard} />
+      </div>
+      <div className="gs-skeleton-block" style={s.skeletonWide} />
+    </div>
+  );
+}
 
 function getStyles(isMobile) {
+  const displayFont = "'Oswald', 'Segoe UI', sans-serif";
+  const bodyFont = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
   return {
     page: {
-      minHeight: "100vh",
       display: "flex",
       flexDirection: isMobile ? "column" : "row",
-      fontFamily:
-        "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      background: "#faf8f5",
+      minHeight: "100vh",
+      fontFamily: bodyFont,
+      background: "#0b0d0f",
+      color: "#f5f5f5",
     },
-
-    /* =========================
-       HERO
-    ========================= */
-
-    heroPanel: {
-      position: "relative",
-      width: isMobile ? "100%" : "46%",
-      minHeight: isMobile ? "220px" : "100vh",
-      background: "#0b0b0c",
-      color: "#f5f0e8",
-      padding: isMobile
-        ? "24px 24px 28px"
-        : "48px 56px",
+    sidebar: {
+      width: isMobile ? "100%" : "268px",
+      minHeight: isMobile ? "auto" : "100vh",
+      background: "linear-gradient(180deg, #151719 0%, #0f1113 100%)",
+      color: "#fff",
+      padding: isMobile ? "14px 16px" : "28px 20px",
       display: "flex",
       flexDirection: "column",
-      justifyContent: isMobile
-        ? "flex-start"
-        : "space-between",
-      clipPath: isMobile
-        ? "none"
-        : "polygon(0 0, 100% 0, 84% 100%, 0% 100%)",
+      borderRight: isMobile ? "none" : "1px solid #292c30",
+      borderBottom: isMobile ? "1px solid #292c30" : "none",
+      position: isMobile ? "sticky" : "static",
+      top: 0,
+      zIndex: 10,
       boxSizing: "border-box",
-      overflow: "hidden",
     },
-
-    heroTopRow: {
+    brandRow: {
       display: "flex",
       alignItems: "center",
-      gap: "10px",
+      gap: "12px",
+      marginBottom: isMobile ? "0" : "36px",
+      paddingBottom: isMobile ? "0" : "26px",
+      borderBottom: isMobile ? "none" : "1px solid #292c30",
     },
-
-    heroBadge: {
-      width: "34px",
-      height: "34px",
-      borderRadius: "9px",
-      background:
-        "linear-gradient(135deg, #ff7a1a, #ffb156)",
+    logoBadge: {
+      width: isMobile ? "38px" : "44px",
+      height: isMobile ? "38px" : "44px",
+      borderRadius: "12px",
+      background: "#ff5a1f",
+      color: "#0b0d0f",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "16px",
+      flexShrink: 0,
+      boxShadow: "0 8px 24px rgba(255,90,31,0.22)",
+    },
+    logo: {
+      fontFamily: displayFont,
+      fontSize: isMobile ? "18px" : "21px",
+      margin: 0,
+      color: "#fff",
+      fontWeight: 600,
+      letterSpacing: "0.4px",
+    },
+    welcomeText: { fontSize: "11px", color: "#777c84", margin: "4px 0 0" },
+    nav: { display: "flex", flexDirection: "column", gap: "7px", flex: 1 },
+    navItem: {
+      padding: "13px 14px",
+      borderRadius: "11px",
+      cursor: "pointer",
+      fontSize: "13px",
+      color: "#969ba3",
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      fontWeight: 600,
+      whiteSpace: "nowrap",
+      border: "1px solid transparent",
+      transition: "all .18s ease",
+    },
+    navIcon: { display: "flex", alignItems: "center", opacity: 0.9 },
+    navItemActive: {
+      background: "linear-gradient(90deg, rgba(255,90,31,.16), rgba(255,90,31,.05))",
+      color: "#ff6a34",
+      border: "1px solid rgba(255,90,31,.22)",
+      boxShadow: "inset 3px 0 0 #ff5a1f",
+    },
+    streakChip: {
+      marginTop: "20px",
+      display: "flex",
+      alignItems: "center",
+      gap: "9px",
+      fontSize: "11px",
+      color: "#c7cbd0",
+      background: "#1a1d20",
+      border: "1px solid #2b2f34",
+      borderRadius: "10px",
+      padding: "11px 12px",
+    },
+    logoutBtn: {
+      marginTop: "12px",
+      padding: "12px",
+      background: "#111315",
+      border: "1px solid #2b2f34",
+      borderRadius: "10px",
+      color: "#aeb3ba",
+      cursor: "pointer",
+      fontWeight: 600,
+      fontSize: "12px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
+    },
+    logoutBtnMobile: {
+      marginLeft: "auto",
+      width: "36px",
+      height: "36px",
+      background: "#111315",
+      border: "1px solid #2b2f34",
+      borderRadius: "10px",
+      color: "#aeb3ba",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       flexShrink: 0,
     },
-
-    heroBrandSmall: {
-      fontSize: "13px",
-      fontWeight: 700,
-      letterSpacing: "0.4px",
-      color: "#cfc7ba",
-    },
-
-    heroBody: {
-      marginTop: isMobile ? "20px" : "0",
-    },
-
-    wordmark: {
-      fontFamily:
-        "'Bebas Neue', 'Inter', sans-serif",
-      fontSize: isMobile
-        ? "42px"
-        : "clamp(48px, 6.5vw, 84px)",
-      lineHeight: isMobile
-        ? "0.98"
-        : "0.92",
-      letterSpacing: "1px",
-      margin: 0,
-      color: "#f5f0e8",
-    },
-
-    heroTagline: {
-      marginTop: isMobile
-        ? "10px"
-        : "22px",
-      maxWidth: "360px",
-      fontSize: "14px",
-      lineHeight: "1.6",
-      color: "#a9a29a",
-    },
-
-    pulseWrap: {
-      marginTop: "20px",
-    },
-
-    pulseSvg: {
-      width: "100%",
-      height: "50px",
-      display: "block",
-    },
-
-    pulseCaption: {
-      marginTop: "10px",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      fontSize: "12px",
-      color: "#8a8378",
-    },
-
-    liveDot: {
-      width: "7px",
-      height: "7px",
-      borderRadius: "50%",
-      background: "#ff7a1a",
-      display: "inline-block",
-    },
-
-    /* =========================
-       FORM PANEL
-    ========================= */
-
-    formPanel: {
+    content: {
       flex: 1,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: isMobile
-        ? "28px 20px 40px"
-        : "48px",
+      padding: isMobile ? "20px 16px 88px" : "42px 44px",
+      overflowY: "auto",
+      minWidth: 0,
       boxSizing: "border-box",
+      background: "radial-gradient(circle at 85% 0%, rgba(255,90,31,.055), transparent 28%), #0b0d0f",
     },
-
-    formInner: {
-      width: "100%",
-      maxWidth: "380px",
-    },
-
-    formHeadRow: {
-      marginBottom: "20px",
-    },
-
-    formTitle: {
-      fontSize: "26px",
-      fontWeight: 800,
-      color: "#1c1c1e",
-      margin: 0,
-      letterSpacing: "-0.4px",
-    },
-
-    formSubtitle: {
-      marginTop: "6px",
-      fontSize: "13px",
-      color: "#8f867a",
-    },
-
-    /* =========================
-       SEGMENT SWITCHER
-    ========================= */
-
-    segmentSwitcher: {
-      display: "flex",
-      background: "#f1ece3",
-      borderRadius: "999px",
-      padding: "4px",
-      marginBottom: "22px",
-      gap: "4px",
-    },
-
-    segmentBtn: {
-      flex: 1,
-      padding: "9px 0",
-      borderRadius: "999px",
-      border: "none",
-      background: "transparent",
-      color: "#8f867a",
-      fontSize: "13px",
-      fontWeight: 700,
-      cursor: "pointer",
-      transition:
-        "color 0.15s ease",
-    },
-
-    segmentBtnActive: {
-      background: "#0b0b0c",
-      color: "#ffffff",
-    },
-
-    /* =========================
-       FORM
-    ========================= */
-
-    form: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "18px",
-    },
-
-    fieldLabel: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "6px",
-      fontSize: "12px",
+    heading: {
+      margin: "0 0 28px",
+      color: "#fff",
+      fontFamily: displayFont,
+      fontSize: isMobile ? "25px" : "34px",
       fontWeight: 600,
-      color: "#6b6b6f",
+      letterSpacing: "0.2px",
+      lineHeight: 1.15,
     },
-
-    input: {
-      padding: "10px 4px",
-      border: "none",
-      borderBottom:
-        "2px solid #e4ddd2",
-      borderRadius: 0,
-      background: "transparent",
-      color: "#1c1c1e",
-      fontSize: "14px",
-      outline: "none",
-      width: "100%",
+    statsGrid: {
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+      gap: isMobile ? "12px" : "18px",
+      marginBottom: isMobile ? "14px" : "20px",
+    },
+    statCard: {
+      background: "linear-gradient(145deg, #17191c, #121416)",
+      border: "1px solid #292c30",
+      borderLeft: "3px solid",
+      borderRadius: "15px",
+      padding: isMobile ? "17px" : "21px",
+      minHeight: "104px",
+      display: "flex",
+      alignItems: "center",
+      gap: "15px",
       boxSizing: "border-box",
-      fontFamily: "inherit",
-      transition:
-        "border-color 0.15s ease",
+      boxShadow: "0 10px 30px rgba(0,0,0,.18)",
     },
-
-    passwordWrapper: {
-      position: "relative",
-      display: "flex",
-      alignItems: "center",
-    },
-
-    passwordInput: {
-      paddingRight: "30px",
-    },
-
-    eyeIcon: {
-      position: "absolute",
-      right: "0",
-      top: "50%",
-      transform:
-        "translateY(-50%)",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-
-    forgotLink: {
-      alignSelf: "flex-end",
-      fontSize: "12px",
-      color: "#e2651a",
-      cursor: "pointer",
-      marginTop: "-8px",
-      fontWeight: 600,
-    },
-
-    /* =========================
-       BUTTON
-    ========================= */
-
-    button: {
-      marginTop: "4px",
-      padding: "14px",
-      borderRadius: "10px",
-      border:
-        "2px solid #0b0b0c",
-      background: "#0b0b0c",
-      color: "#ffffff",
-      fontSize: "14px",
-      fontWeight: 700,
-      cursor: "pointer",
-      transition:
-        "background 0.15s ease, color 0.15s ease",
-    },
-
-    buttonDisabled: {
-      opacity: 0.55,
-      cursor: "not-allowed",
-    },
-
-    /* =========================
-       BANNERS
-    ========================= */
-
-    banner: {
-      padding: "10px 12px",
-      borderRadius: "10px",
-      marginBottom: "16px",
-      fontSize: "13px",
-      fontWeight: 600,
-    },
-
-    bannerError: {
-      background: "#fff0ee",
-      color: "#e0432a",
-      border:
-        "1px solid #ffd0c8",
-    },
-
-    bannerSuccess: {
-      background: "#fff0e0",
-      color: "#c2660f",
-      border:
-        "1px solid #ffd9b3",
-    },
-
-    /* =========================
-       TEMP PASSWORD
-    ========================= */
-
-    tempPasswordBox: {
-      background: "#fff8f0",
-      border:
-        "1px solid #ffd9b3",
+    statIconWrap: {
+      width: "44px",
+      height: "44px",
       borderRadius: "12px",
-      padding: "14px",
-      marginBottom: "16px",
-      textAlign: "center",
+      background: "#202327",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
     },
-
-    tempPasswordLabel: {
-      fontSize: "12px",
-      color: "#a68f75",
+    statLabel: { fontSize: "11px", color: "#858a92", margin: "0 0 5px", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".7px" },
+    statValue: {
+      fontFamily: displayFont,
+      fontSize: isMobile ? "23px" : "27px",
+      color: "#fff",
       margin: 0,
+      fontWeight: 600,
+      textTransform: "capitalize",
+      lineHeight: 1.1,
     },
-
-    tempPasswordValue: {
-      fontSize: "18px",
-      fontWeight: "bold",
-      color: "#c2660f",
-      margin: "6px 0",
-      letterSpacing: "1px",
+    midGrid: {
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "1fr 1.05fr",
+      gap: isMobile ? "12px" : "18px",
+      alignItems: "stretch",
     },
-
-    tempPasswordHint: {
-      fontSize: "11px",
-      color: "#bcae9c",
-      margin: 0,
+    checkInBox: {
+      background: "linear-gradient(145deg, #181a1d, #121416)",
+      border: "1px solid #292c30",
+      padding: isMobile ? "20px" : "25px",
+      borderRadius: "15px",
+      display: "flex",
+      flexDirection: isMobile ? "column" : "row",
+      justifyContent: "space-between",
+      alignItems: isMobile ? "stretch" : "center",
+      gap: isMobile ? "17px" : "18px",
+      minHeight: isMobile ? "auto" : "132px",
+      boxSizing: "border-box",
     },
-
-    /* =========================
-       BOTTOM TEXT
-    ========================= */
-
-    toggleText: {
-      textAlign: "center",
-      marginTop: "22px",
-      fontSize: "13px",
-      color: "#8f867a",
+    checkInLeft: { display: "flex", alignItems: "center", gap: "11px" },
+    pulseDot: { width: "9px", height: "9px", borderRadius: "50%", background: "#c8ff4d", flexShrink: 0, animation: "gs-pulse 1.8s infinite" },
+    checkInText: { margin: 0, color: "#e7e7e7", fontSize: "14px", fontWeight: 600, lineHeight: 1.4 },
+    weekCard: {
+      background: "linear-gradient(145deg, #181a1d, #121416)",
+      border: "1px solid #292c30",
+      borderRadius: "15px",
+      padding: isMobile ? "20px" : "21px 23px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "15px",
     },
-
-    toggleLink: {
-      color: "#e2651a",
-      fontWeight: 700,
-      cursor: "pointer",
-      padding: "2px 6px",
-      borderRadius: "6px",
-      transition:
-        "background 0.15s ease",
-    },
-
-    hint: {
-      marginTop: "22px",
-      fontSize: "11px",
-      color: "#bcae9c",
-      textAlign: "center",
-      borderTop:
-        "1px solid #f0e6d8",
-      paddingTop: "12px",
-    },
+    weekCardTop: { display: "flex", justifyContent: "space-between", alignItems: "center" },
+    weekCardLabel: { fontSize: "11px", color: "#858a92", margin: 0, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px" },
+    weekCardValue: { fontFamily: displayFont, fontSize: "23px", color: "#fff", margin: "3px 0 0", fontWeight: 600 },
+    weekBars: { display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "7px", height: "70px" },
+    weekBarCol: { display: "flex", flexDirection: "column", alignItems: "center", gap: "7px", flex: 1, height: "100%", justifyContent: "flex-end" },
+    weekBarTrack: { width: "100%", maxWidth: "22px", height: "48px", display: "flex", alignItems: "flex-end", background: "#222529", borderRadius: "6px", overflow: "hidden" },
+    weekBarFill: { width: "100%", minHeight: "4px", borderRadius: "6px" },
+    weekBarLabel: { fontSize: "10px", fontWeight: 700 },
+    streakRow: { display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "#aeb3ba", borderTop: "1px solid #292c30", paddingTop: "12px" },
+    tableWrapper: { background: "#141618", border: "1px solid #292c30", borderRadius: "15px", overflow: isMobile ? "auto" : "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.16)" },
+    table: { width: "100%", minWidth: isMobile ? "480px" : "auto", borderCollapse: "collapse" },
+    tr: { borderBottom: "1px solid #25282c" },
+    th: { textAlign: "left", padding: isMobile ? "13px" : "15px 19px", background: "#1b1e21", color: "#858a92", fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", whiteSpace: "nowrap" },
+    td: { padding: isMobile ? "13px" : "15px 19px", fontSize: "13px", color: "#e5e5e5", whiteSpace: "nowrap" },
+    emptyText: { padding: "24px 5px", color: "#6f747b", fontSize: "13px", margin: 0 },
+    cardListWrap: { display: "flex", flexDirection: "column", gap: "10px" },
+    recordCard: { background: "linear-gradient(145deg, #181a1d, #121416)", border: "1px solid #292c30", borderRadius: "14px", padding: "16px", display: "flex", flexDirection: "column", gap: "9px" },
+    recordCardTopRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2px" },
+    recordCardTitle: { fontFamily: displayFont, fontSize: "17px", fontWeight: 600, color: "#fff" },
+    recordCardRow: { display: "flex", justifyContent: "space-between", gap: "14px", fontSize: "12px" },
+    recordCardLabel: { color: "#858a92" },
+    recordCardValue: { color: "#e5e5e5", fontWeight: 500, textAlign: "right" },
+    primaryBtn: { padding: "12px 23px", background: "#ff5a1f", color: "#101214", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: 800, fontSize: "12px", width: isMobile ? "100%" : "auto", boxShadow: "0 8px 22px rgba(255,90,31,.2)" },
+    dangerBtn: { padding: "12px 23px", background: "rgba(255,82,101,.08)", color: "#ff6879", border: "1px solid rgba(255,82,101,.28)", borderRadius: "10px", cursor: "pointer", fontWeight: 800, fontSize: "12px", width: isMobile ? "100%" : "auto" },
+    statusBadge: { padding: "5px 10px", borderRadius: "20px", fontSize: "10px", fontWeight: 800, textTransform: "capitalize", whiteSpace: "nowrap" },
+    statusActive: { background: "rgba(200,255,77,.10)", color: "#c8ff4d", border: "1px solid rgba(200,255,77,.24)" },
+    statusInactive: { background: "#202327", color: "#858a92", border: "1px solid #30343a" },
+    toast: { background: "#1b1e21", color: "#c8ff4d", border: "1px solid rgba(200,255,77,.25)", padding: "12px 16px", borderRadius: "10px", marginBottom: "18px", fontSize: "12px", fontWeight: 700, boxShadow: "0 10px 28px rgba(0,0,0,.22)" },
+    bottomNav: { position: "fixed", bottom: 0, left: 0, right: 0, display: "flex", background: "rgba(18,20,22,.97)", borderTop: "1px solid #292c30", padding: "7px 5px calc(7px + env(safe-area-inset-bottom))", zIndex: 20, backdropFilter: "blur(12px)" },
+    bottomTab: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", padding: "7px 2px", borderRadius: "10px", color: "#777c84", cursor: "pointer" },
+    bottomTabActive: { color: "#ff5a1f", background: "rgba(255,90,31,.08)" },
+    bottomTabLabel: { fontSize: "9px", fontWeight: 700 },
+    skeletonHeading: { height: isMobile ? "28px" : "38px", width: "240px", borderRadius: "8px", marginBottom: isMobile ? "17px" : "28px" },
+    skeletonStatCard: { height: isMobile ? "82px" : "104px", borderRadius: "15px" },
+    skeletonWide: { height: isMobile ? "160px" : "190px", borderRadius: "15px" },
   };
 }
