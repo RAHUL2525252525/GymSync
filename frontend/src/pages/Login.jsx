@@ -118,19 +118,47 @@ export default function Login() {
   return (
     <div style={s.page}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
         * {
           box-sizing: border-box;
+        }
+
+        html,
+        body,
+        #root {
+          margin: 0;
+          min-height: 100%;
+        }
+
+        body {
+          background: #0B100D;
+        }
+
+        button,
+        input {
+          font-family: inherit;
+        }
+
+        @keyframes gs-float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+
+          50% {
+            transform: translateY(-5px);
+          }
         }
 
         @keyframes gs-pulse-run {
           0% {
             stroke-dashoffset: 300;
           }
+
           45% {
             stroke-dashoffset: 0;
           }
+
           100% {
             stroke-dashoffset: -300;
           }
@@ -140,26 +168,29 @@ export default function Login() {
           0%, 100% {
             opacity: 0.35;
           }
+
           50% {
             opacity: 1;
           }
         }
 
-        @keyframes gs-float {
+        @keyframes gs-glow {
           0%, 100% {
-            transform: translateY(0px);
+            box-shadow: 0 0 0 rgba(200, 255, 77, 0);
           }
+
           50% {
-            transform: translateY(-6px);
+            box-shadow: 0 0 28px rgba(200, 255, 77, 0.08);
           }
         }
 
-        @keyframes gs-glow {
-          0%, 100% {
-            box-shadow: 0 0 0 rgba(255, 122, 26, 0);
+        @keyframes gs-shine {
+          0% {
+            left: -120%;
           }
-          50% {
-            box-shadow: 0 0 28px rgba(255, 122, 26, 0.08);
+
+          100% {
+            left: 140%;
           }
         }
 
@@ -170,6 +201,19 @@ export default function Login() {
 
         .gs-live-dot {
           animation: gs-dot-fade 1.6s ease-in-out infinite;
+        }
+
+        .gs-input::placeholder {
+          color: #667269;
+        }
+
+        .gs-input:focus {
+          border-color: #C8FF4D !important;
+          background: #121A14 !important;
+        }
+
+        .gs-input:hover:not(:focus) {
+          border-color: #3A473E !important;
         }
 
         .gs-primary-btn {
@@ -187,22 +231,20 @@ export default function Login() {
           background: linear-gradient(
             90deg,
             transparent,
-            rgba(255,255,255,0.16),
+            rgba(255,255,255,0.22),
             transparent
           );
           transform: skewX(-20deg);
-          transition: left 0.55s ease;
         }
 
         .gs-primary-btn:hover:not(:disabled)::before {
-          left: 140%;
+          animation: gs-shine 0.65s ease;
         }
 
         .gs-primary-btn:hover:not(:disabled) {
-          background: #ffffff !important;
-          color: #0b0b0c !important;
+          background: #B7ED3E !important;
           transform: translateY(-2px);
-          box-shadow: 0 10px 24px rgba(11, 11, 12, 0.14);
+          box-shadow: 0 12px 30px rgba(200, 255, 77, 0.18);
         }
 
         .gs-primary-btn:active:not(:disabled) {
@@ -210,38 +252,41 @@ export default function Login() {
         }
 
         .gs-segment-btn:hover {
-          color: #0b0b0c;
+          color: #F5F8F3 !important;
         }
 
         .gs-link-pill:hover {
-          background: #fff0e0;
-        }
-
-        .gs-input::placeholder {
-          color: #b7ab9c;
-        }
-
-        .gs-input:focus {
-          border-bottom-color: #ff7a1a !important;
+          color: #C8FF4D !important;
         }
 
         .gs-eye-button:hover {
-          opacity: 0.7;
+          opacity: 0.75;
+        }
+
+        @media (max-width: 600px) {
+          .gs-brand-text {
+            font-size: 17px !important;
+          }
         }
       `}</style>
 
-      {/* ================= HERO PANEL ================= */}
+      {/* ================= LEFT / HERO PANEL ================= */}
+
       <div style={s.heroPanel}>
         <div style={s.heroGlowOne}></div>
         <div style={s.heroGlowTwo}></div>
+        <div style={s.heroGrid}></div>
 
         <div style={s.heroTopRow}>
           <div style={s.heroBadge}>
-            <span style={s.badgeIcon}>💪</span>
+            <DumbbellIcon />
           </div>
 
           <div>
-            <span style={s.heroBrandSmall}>GymSync</span>
+            <span className="gs-brand-text" style={s.heroBrandSmall}>
+              Gym<span style={s.heroBrandAccent}>Sync</span>
+            </span>
+
             <div style={s.brandLine}></div>
           </div>
         </div>
@@ -267,22 +312,22 @@ export default function Login() {
 
           <div style={s.heroStats}>
             <div style={s.statItem}>
-              <strong>01</strong>
-              <span>TRAIN</span>
+              <strong style={s.statNumber}>01</strong>
+              <span style={s.statLabel}>TRAIN</span>
             </div>
 
             <div style={s.statDivider}></div>
 
             <div style={s.statItem}>
-              <strong>02</strong>
-              <span>TRACK</span>
+              <strong style={s.statNumber}>02</strong>
+              <span style={s.statLabel}>TRACK</span>
             </div>
 
             <div style={s.statDivider}></div>
 
             <div style={s.statItem}>
-              <strong>03</strong>
-              <span>GROW</span>
+              <strong style={s.statNumber}>03</strong>
+              <span style={s.statLabel}>GROW</span>
             </div>
           </div>
         </div>
@@ -297,7 +342,7 @@ export default function Login() {
               <path
                 d="M0 30 H90 L105 10 L120 50 L135 18 L150 42 L165 30 H300"
                 fill="none"
-                stroke="rgba(255,122,26,0.18)"
+                stroke="rgba(200,255,77,0.12)"
                 strokeWidth="2"
               />
 
@@ -305,7 +350,7 @@ export default function Login() {
                 className="gs-pulse-path"
                 d="M0 30 H90 L105 10 L120 50 L135 18 L150 42 L165 30 H300"
                 fill="none"
-                stroke="#ff7a1a"
+                stroke="#C8FF4D"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -313,18 +358,27 @@ export default function Login() {
             </svg>
 
             <div style={s.pulseCaption}>
-              <span className="gs-live-dot" style={s.liveDot}></span>
-              Live activity feed
+              <span
+                className="gs-live-dot"
+                style={s.liveDot}
+              ></span>
+
+              Live activity system
             </div>
           </div>
         )}
 
-        <div style={s.heroCornerText}>GYMSYNC / 2026</div>
+        <div style={s.heroCornerText}>
+          GYMSYNC / 2026
+        </div>
       </div>
 
       {/* ================= FORM PANEL ================= */}
+
       <div style={s.formPanel}>
         <div style={s.formCard}>
+          <div style={s.formTopAccent}></div>
+
           <div style={s.formInner}>
             <div style={s.formHeadRow}>
               <div style={s.formMiniLabel}>
@@ -341,8 +395,10 @@ export default function Login() {
               <p style={s.formSubtitle}>
                 {mode === "login" &&
                   "Sign in to pick up where you left off."}
+
                 {mode === "register" &&
                   "Join the floor. It takes less than a minute."}
+
                 {mode === "forgot" &&
                   "We'll issue a temporary password for this email."}
               </p>
@@ -355,7 +411,9 @@ export default function Login() {
                   className="gs-segment-btn"
                   style={{
                     ...s.segmentBtn,
-                    ...(mode === "login" ? s.segmentBtnActive : {}),
+                    ...(mode === "login"
+                      ? s.segmentBtnActive
+                      : {}),
                   }}
                   onClick={() => switchMode("login")}
                 >
@@ -367,7 +425,9 @@ export default function Login() {
                   className="gs-segment-btn"
                   style={{
                     ...s.segmentBtn,
-                    ...(mode === "register" ? s.segmentBtnActive : {}),
+                    ...(mode === "register"
+                      ? s.segmentBtnActive
+                      : {}),
                   }}
                   onClick={() => switchMode("register")}
                 >
@@ -380,13 +440,19 @@ export default function Login() {
               <div
                 style={{
                   ...s.banner,
-                  ...(error.toLowerCase().includes("successful")
+                  ...(error
+                    .toLowerCase()
+                    .includes("successful")
                     ? s.bannerSuccess
                     : s.bannerError),
                 }}
               >
                 <span style={s.bannerIcon}>
-                  {error.toLowerCase().includes("successful") ? "✓" : "!"}
+                  {error
+                    .toLowerCase()
+                    .includes("successful")
+                    ? "✓"
+                    : "!"}
                 </span>
 
                 <span>{error}</span>
@@ -396,14 +462,18 @@ export default function Login() {
             {tempPassword && (
               <div style={s.tempPasswordBox}>
                 <div style={s.tempPasswordTop}>
-                  <span style={s.tempPasswordIcon}>✓</span>
+                  <span style={s.tempPasswordIcon}>
+                    ✓
+                  </span>
 
                   <p style={s.tempPasswordLabel}>
                     Temporary password generated
                   </p>
                 </div>
 
-                <p style={s.tempPasswordValue}>{tempPassword}</p>
+                <p style={s.tempPasswordValue}>
+                  {tempPassword}
+                </p>
 
                 <p style={s.tempPasswordHint}>
                   Log in with this, then update your password.
@@ -412,7 +482,10 @@ export default function Login() {
             )}
 
             {mode === "forgot" ? (
-              <form onSubmit={handleForgotPassword} style={s.form}>
+              <form
+                onSubmit={handleForgotPassword}
+                style={s.form}
+              >
                 <label style={s.fieldLabel}>
                   Registered email
 
@@ -422,14 +495,10 @@ export default function Login() {
                     type="email"
                     placeholder="you@example.com"
                     value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
+                    onChange={(e) =>
+                      setForgotEmail(e.target.value)
+                    }
                     required
-                    onFocus={(e) =>
-                      (e.target.style.borderBottomColor = "#ff7a1a")
-                    }
-                    onBlur={(e) =>
-                      (e.target.style.borderBottomColor = "#e4ddd2")
-                    }
                   />
                 </label>
 
@@ -437,22 +506,32 @@ export default function Login() {
                   className="gs-primary-btn"
                   style={{
                     ...s.button,
-                    ...(loading ? s.buttonDisabled : {}),
+                    ...(loading
+                      ? s.buttonDisabled
+                      : {}),
                   }}
                   type="submit"
                   disabled={loading}
                 >
                   <span style={s.buttonContent}>
-                    {loading ? "Please wait..." : "Send reset password"}
+                    {loading
+                      ? "Please wait..."
+                      : "Send reset password"}
 
-                    {!loading && <span style={s.buttonArrow}>→</span>}
+                    {!loading && (
+                      <span style={s.buttonArrow}>
+                        →
+                      </span>
+                    )}
                   </span>
                 </button>
               </form>
             ) : (
               <form
                 onSubmit={
-                  mode === "register" ? handleRegister : handleLogin
+                  mode === "register"
+                    ? handleRegister
+                    : handleLogin
                 }
                 style={s.form}
               >
@@ -470,12 +549,6 @@ export default function Login() {
                         value={form.name}
                         onChange={handleChange}
                         required
-                        onFocus={(e) =>
-                          (e.target.style.borderBottomColor = "#ff7a1a")
-                        }
-                        onBlur={(e) =>
-                          (e.target.style.borderBottomColor = "#e4ddd2")
-                        }
                       />
                     </label>
 
@@ -490,12 +563,6 @@ export default function Login() {
                         placeholder="98765 43210"
                         value={form.phone}
                         onChange={handleChange}
-                        onFocus={(e) =>
-                          (e.target.style.borderBottomColor = "#ff7a1a")
-                        }
-                        onBlur={(e) =>
-                          (e.target.style.borderBottomColor = "#e4ddd2")
-                        }
                       />
                     </label>
                   </>
@@ -513,12 +580,6 @@ export default function Login() {
                     value={form.email}
                     onChange={handleChange}
                     required
-                    onFocus={(e) =>
-                      (e.target.style.borderBottomColor = "#ff7a1a")
-                    }
-                    onBlur={(e) =>
-                      (e.target.style.borderBottomColor = "#e4ddd2")
-                    }
                   />
                 </label>
 
@@ -532,25 +593,25 @@ export default function Login() {
                         ...s.input,
                         ...s.passwordInput,
                       }}
-                      type={showPassword ? "text" : "password"}
+                      type={
+                        showPassword
+                          ? "text"
+                          : "password"
+                      }
                       name="password"
                       placeholder="••••••••"
                       value={form.password}
                       onChange={handleChange}
                       required
-                      onFocus={(e) =>
-                        (e.target.style.borderBottomColor = "#ff7a1a")
-                      }
-                      onBlur={(e) =>
-                        (e.target.style.borderBottomColor = "#e4ddd2")
-                      }
                     />
 
                     <span
                       className="gs-eye-button"
                       style={s.eyeIcon}
                       onClick={() =>
-                        setShowPassword(!showPassword)
+                        setShowPassword(
+                          !showPassword
+                        )
                       }
                       role="button"
                       aria-label={
@@ -559,7 +620,11 @@ export default function Login() {
                           : "Show password"
                       }
                     >
-                      {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      {showPassword ? (
+                        <EyeOffIcon />
+                      ) : (
+                        <EyeIcon />
+                      )}
                     </span>
                   </div>
                 </label>
@@ -567,7 +632,9 @@ export default function Login() {
                 {mode === "login" && (
                   <span
                     style={s.forgotLink}
-                    onClick={() => switchMode("forgot")}
+                    onClick={() =>
+                      switchMode("forgot")
+                    }
                   >
                     Forgot password?
                   </span>
@@ -577,7 +644,9 @@ export default function Login() {
                   className="gs-primary-btn"
                   style={{
                     ...s.button,
-                    ...(loading ? s.buttonDisabled : {}),
+                    ...(loading
+                      ? s.buttonDisabled
+                      : {}),
                   }}
                   type="submit"
                   disabled={loading}
@@ -589,7 +658,11 @@ export default function Login() {
                       ? "Create account"
                       : "Login"}
 
-                    {!loading && <span style={s.buttonArrow}>→</span>}
+                    {!loading && (
+                      <span style={s.buttonArrow}>
+                        →
+                      </span>
+                    )}
                   </span>
                 </button>
               </form>
@@ -600,7 +673,9 @@ export default function Login() {
                 <span
                   className="gs-link-pill"
                   style={s.toggleLink}
-                  onClick={() => switchMode("login")}
+                  onClick={() =>
+                    switchMode("login")
+                  }
                 >
                   ← Back to login
                 </span>
@@ -612,7 +687,9 @@ export default function Login() {
                   <span
                     className="gs-link-pill"
                     style={s.toggleLink}
-                    onClick={() => switchMode("register")}
+                    onClick={() =>
+                      switchMode("register")
+                    }
                   >
                     Register here
                   </span>
@@ -625,7 +702,9 @@ export default function Login() {
                   <span
                     className="gs-link-pill"
                     style={s.toggleLink}
-                    onClick={() => switchMode("login")}
+                    onClick={() =>
+                      switchMode("login")
+                    }
                   >
                     Login here
                   </span>
@@ -634,7 +713,9 @@ export default function Login() {
             </p>
 
             <div style={s.securityRow}>
-              <div style={s.securityIcon}>✓</div>
+              <div style={s.securityIcon}>
+                <ShieldIcon />
+              </div>
 
               <div>
                 <strong style={s.securityTitle}>
@@ -648,8 +729,43 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        <div style={s.formFooter}>
+          <span>GYMSYNC</span>
+          <span style={s.footerDot}></span>
+          <span>FITNESS MANAGEMENT</span>
+        </div>
       </div>
     </div>
+  );
+}
+
+/* =========================================================
+   ICONS
+========================================================= */
+
+function DumbbellIcon() {
+  return (
+    <svg
+      width="21"
+      height="21"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#101711"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6.5 6.5v11" />
+      <path d="M17.5 6.5v11" />
+      <path d="M3.5 9v6" />
+      <path d="M20.5 9v6" />
+      <path d="M6.5 12h11" />
+      <path d="M3.5 10.5h3" />
+      <path d="M17.5 10.5h3" />
+      <path d="M3.5 13.5h3" />
+      <path d="M17.5 13.5h3" />
+    </svg>
   );
 }
 
@@ -660,7 +776,7 @@ function EyeIcon() {
       height="18"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#ff7a1a"
+      stroke="#A8C936"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -678,7 +794,7 @@ function EyeOffIcon() {
       height="18"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#ff7a1a"
+      stroke="#A8C936"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -689,6 +805,28 @@ function EyeOffIcon() {
   );
 }
 
+function ShieldIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3l7 4v5c0 4.7-3 7.8-7 9-4-1.2-7-4.3-7-9V7l7-4Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+/* =========================================================
+   STYLES
+========================================================= */
+
 function getStyles(isMobile) {
   return {
     page: {
@@ -697,99 +835,124 @@ function getStyles(isMobile) {
       flexDirection: isMobile ? "column" : "row",
       fontFamily:
         "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      background: "#faf8f5",
-      overflow: "hidden",
+      background: "#0B100D",
+      color: "#F5F8F3",
+      overflow: isMobile ? "visible" : "hidden",
     },
 
     /* ================= HERO ================= */
 
     heroPanel: {
       position: "relative",
-      width: isMobile ? "100%" : "46%",
-      minHeight: isMobile ? "330px" : "100vh",
+      width: isMobile ? "100%" : "48%",
+      minHeight: isMobile ? "365px" : "100vh",
       background:
-        "radial-gradient(circle at 75% 20%, rgba(255,122,26,0.09), transparent 28%), #0b0b0c",
-      color: "#f5f0e8",
-      padding: isMobile ? "25px 24px 30px" : "48px 56px",
+        "radial-gradient(circle at 72% 20%, rgba(200,255,77,0.065), transparent 30%), linear-gradient(145deg, #0B100D 0%, #101711 100%)",
+      color: "#F5F8F3",
+      padding: isMobile
+        ? "28px 24px 34px"
+        : "48px 62px",
       display: "flex",
       flexDirection: "column",
-      justifyContent: isMobile ? "flex-start" : "space-between",
+      justifyContent: isMobile
+        ? "flex-start"
+        : "space-between",
       clipPath: isMobile
         ? "none"
-        : "polygon(0 0, 100% 0, 84% 100%, 0% 100%)",
+        : "polygon(0 0, 100% 0, 86% 100%, 0% 100%)",
       boxSizing: "border-box",
       overflow: "hidden",
+      borderRight: isMobile
+        ? "none"
+        : "1px solid #29342C",
     },
 
     heroGlowOne: {
       position: "absolute",
-      width: "300px",
-      height: "300px",
+      width: "390px",
+      height: "390px",
       borderRadius: "50%",
-      right: "-130px",
-      top: "15%",
-      background: "rgba(255,122,26,0.035)",
-      filter: "blur(10px)",
+      right: "-190px",
+      top: "10%",
+      background:
+        "rgba(200,255,77,0.035)",
+      filter: "blur(16px)",
       pointerEvents: "none",
     },
 
     heroGlowTwo: {
       position: "absolute",
-      width: "180px",
-      height: "180px",
+      width: "230px",
+      height: "230px",
       borderRadius: "50%",
-      left: "-100px",
+      left: "-130px",
       bottom: "8%",
-      background: "rgba(255,122,26,0.025)",
-      filter: "blur(8px)",
+      background:
+        "rgba(168,201,54,0.025)",
+      filter: "blur(15px)",
       pointerEvents: "none",
+    },
+
+    heroGrid: {
+      position: "absolute",
+      inset: 0,
+      opacity: 0.2,
+      pointerEvents: "none",
+      backgroundImage:
+        "linear-gradient(rgba(200,255,77,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(200,255,77,0.035) 1px, transparent 1px)",
+      backgroundSize: "44px 44px",
+      maskImage:
+        "linear-gradient(to bottom, rgba(0,0,0,0.5), transparent 85%)",
+      WebkitMaskImage:
+        "linear-gradient(to bottom, rgba(0,0,0,0.5), transparent 85%)",
     },
 
     heroTopRow: {
       display: "flex",
       alignItems: "center",
-      gap: "11px",
+      gap: "12px",
       position: "relative",
       zIndex: 2,
     },
 
     heroBadge: {
-      width: "38px",
-      height: "38px",
-      borderRadius: "11px",
-      background:
-        "linear-gradient(135deg, #ff7a1a, #ffb156)",
+      width: "42px",
+      height: "42px",
+      borderRadius: "12px",
+      background: "#C8FF4D",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "17px",
       flexShrink: 0,
-      boxShadow: "0 8px 24px rgba(255,122,26,0.15)",
-      animation: "gs-float 4s ease-in-out infinite",
-    },
-
-    badgeIcon: {
-      filter: "grayscale(1) brightness(10)",
-      fontSize: "16px",
+      boxShadow:
+        "0 8px 28px rgba(200,255,77,0.13)",
+      animation:
+        "gs-float 4s ease-in-out infinite",
     },
 
     heroBrandSmall: {
-      fontSize: "14px",
-      fontWeight: 800,
-      letterSpacing: "0.6px",
-      color: "#f5f0e8",
+      fontFamily:
+        "'Oswald', 'Inter', sans-serif",
+      fontSize: "19px",
+      fontWeight: 600,
+      letterSpacing: "0.3px",
+      color: "#F5F8F3",
+    },
+
+    heroBrandAccent: {
+      color: "#C8FF4D",
     },
 
     brandLine: {
-      width: "22px",
+      width: "25px",
       height: "2px",
-      background: "#ff7a1a",
+      background: "#C8FF4D",
       marginTop: "4px",
       borderRadius: "10px",
     },
 
     heroBody: {
-      marginTop: isMobile ? "30px" : "0",
+      marginTop: isMobile ? "35px" : "0",
       position: "relative",
       zIndex: 2,
     },
@@ -801,72 +964,81 @@ function getStyles(isMobile) {
       fontSize: "9px",
       fontWeight: 800,
       letterSpacing: "2px",
-      color: "#ff7a1a",
+      color: "#A8C936",
       marginBottom: "15px",
     },
 
     eyebrowLine: {
-      width: "25px",
+      width: "27px",
       height: "1px",
-      background: "#ff7a1a",
+      background: "#A8C936",
     },
 
     wordmark: {
-      fontFamily: "'Bebas Neue', 'Inter', sans-serif",
+      fontFamily:
+        "'Oswald', 'Inter', sans-serif",
       fontSize: isMobile
         ? "58px"
-        : "clamp(56px, 7vw, 92px)",
-      lineHeight: isMobile ? "0.88" : "0.87",
+        : "clamp(60px, 7vw, 94px)",
+      lineHeight: "0.88",
       letterSpacing: "2px",
       margin: 0,
-      color: "#f5f0e8",
+      color: "#F5F8F3",
+      fontWeight: 600,
     },
 
     wordmarkAccent: {
-      color: "#ff7a1a",
+      color: "#C8FF4D",
     },
 
     heroTagline: {
-      marginTop: isMobile ? "17px" : "24px",
-      maxWidth: "390px",
+      marginTop: isMobile ? "18px" : "24px",
+      maxWidth: "410px",
       fontSize: "13px",
-      lineHeight: "1.7",
-      color: "#a9a29a",
+      lineHeight: "1.75",
+      color: "#8F9B91",
+      marginBottom: 0,
     },
 
     heroStats: {
       display: "flex",
       alignItems: "center",
-      gap: "18px",
-      marginTop: isMobile ? "23px" : "32px",
+      gap: "20px",
+      marginTop: isMobile ? "24px" : "32px",
     },
 
     statItem: {
       display: "flex",
       flexDirection: "column",
-      gap: "3px",
+      gap: "4px",
     },
 
-    statItemStrong: {
-      fontSize: "16px",
+    statNumber: {
+      fontFamily:
+        "'Oswald', 'Inter', sans-serif",
+      fontSize: "17px",
+      fontWeight: 600,
+      color: "#C8FF4D",
+    },
+
+    statLabel: {
+      fontSize: "8px",
+      fontWeight: 800,
+      letterSpacing: "1.5px",
+      color: "#667269",
     },
 
     statDivider: {
       width: "1px",
-      height: "27px",
-      background: "rgba(255,255,255,0.12)",
-    },
-
-    statItem: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "3px",
+      height: "28px",
+      background: "#29342C",
     },
 
     pulseWrap: {
       marginTop: "20px",
       position: "relative",
       zIndex: 2,
+      maxWidth: "410px",
     },
 
     pulseSvg: {
@@ -876,12 +1048,12 @@ function getStyles(isMobile) {
     },
 
     pulseCaption: {
-      marginTop: "10px",
+      marginTop: "9px",
       display: "flex",
       alignItems: "center",
       gap: "8px",
-      fontSize: "11px",
-      color: "#716b64",
+      fontSize: "10px",
+      color: "#606C63",
       letterSpacing: "0.2px",
     },
 
@@ -889,50 +1061,74 @@ function getStyles(isMobile) {
       width: "7px",
       height: "7px",
       borderRadius: "50%",
-      background: "#ff7a1a",
+      background: "#C8FF4D",
       display: "inline-block",
-      boxShadow: "0 0 9px rgba(255,122,26,0.55)",
+      boxShadow:
+        "0 0 10px rgba(200,255,77,0.45)",
     },
 
     heroCornerText: {
       position: "absolute",
-      bottom: "24px",
-      left: "56px",
+      bottom: "25px",
+      left: isMobile ? "24px" : "62px",
       fontSize: "8px",
       letterSpacing: "2px",
-      color: "#403e3b",
+      color: "#364039",
       fontWeight: 700,
       zIndex: 2,
     },
 
-    /* ================= FORM ================= */
+    /* ================= FORM PANEL ================= */
 
     formPanel: {
       flex: 1,
       display: "flex",
+      flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      padding: isMobile ? "25px 18px 45px" : "45px",
+      padding: isMobile
+        ? "28px 18px 40px"
+        : "45px 65px 38px",
       boxSizing: "border-box",
       position: "relative",
-      background: "#faf8f5",
+      background:
+        "radial-gradient(circle at 80% 15%, rgba(200,255,77,0.025), transparent 28%), #0B100D",
+      minWidth: 0,
     },
 
     formCard: {
       width: "100%",
-      maxWidth: "440px",
-      padding: isMobile ? "0" : "10px 20px",
+      maxWidth: "445px",
       position: "relative",
+      background: "#151D17",
+      border: "1px solid #29342C",
+      borderRadius: "20px",
+      padding: isMobile
+        ? "28px 22px 25px"
+        : "34px 38px 30px",
+      boxShadow:
+        "0 24px 70px rgba(0,0,0,0.28)",
+    },
+
+    formTopAccent: {
+      position: "absolute",
+      top: 0,
+      left: "32px",
+      right: "32px",
+      height: "2px",
+      background:
+        "linear-gradient(90deg, transparent, #C8FF4D, transparent)",
+      borderRadius: "0 0 10px 10px",
+      opacity: 0.8,
     },
 
     formInner: {
       width: "100%",
-      maxWidth: "380px",
       margin: "0 auto",
     },
 
     formHeadRow: {
-      marginBottom: "23px",
+      marginBottom: "22px",
     },
 
     formMiniLabel: {
@@ -941,8 +1137,8 @@ function getStyles(isMobile) {
       gap: "7px",
       fontSize: "9px",
       fontWeight: 800,
-      letterSpacing: "1.6px",
-      color: "#a2988b",
+      letterSpacing: "1.7px",
+      color: "#78857B",
       marginBottom: "11px",
     },
 
@@ -950,85 +1146,94 @@ function getStyles(isMobile) {
       width: "6px",
       height: "6px",
       borderRadius: "50%",
-      background: "#ff7a1a",
-      boxShadow: "0 0 8px rgba(255,122,26,0.25)",
+      background: "#C8FF4D",
+      boxShadow:
+        "0 0 9px rgba(200,255,77,0.3)",
     },
 
     formTitle: {
-      fontSize: isMobile ? "27px" : "30px",
-      fontWeight: 800,
-      color: "#1c1c1e",
+      fontFamily:
+        "'Oswald', 'Inter', sans-serif",
+      fontSize: isMobile ? "31px" : "34px",
+      fontWeight: 600,
+      color: "#F5F8F3",
       margin: 0,
-      letterSpacing: "-0.8px",
+      letterSpacing: "0.2px",
       lineHeight: "1.1",
     },
 
     formSubtitle: {
       marginTop: "8px",
       marginBottom: 0,
-      fontSize: "13px",
-      color: "#8f867a",
-      lineHeight: "1.5",
+      fontSize: "12px",
+      color: "#7E8A81",
+      lineHeight: "1.55",
     },
+
+    /* ================= SWITCHER ================= */
 
     segmentSwitcher: {
       display: "flex",
-      background: "#f1ece3",
-      borderRadius: "12px",
+      background: "#101711",
+      borderRadius: "11px",
       padding: "4px",
-      marginBottom: "25px",
+      marginBottom: "22px",
       gap: "4px",
-      border: "1px solid #e8dfd3",
+      border: "1px solid #29342C",
     },
 
     segmentBtn: {
       flex: 1,
       padding: "10px 0",
-      borderRadius: "9px",
+      borderRadius: "8px",
       border: "none",
       background: "transparent",
-      color: "#8f867a",
-      fontSize: "12px",
+      color: "#6F7B72",
+      fontSize: "11px",
       fontWeight: 700,
       cursor: "pointer",
-      transition: "all 0.2s ease",
+      transition:
+        "all 0.2s ease",
     },
 
     segmentBtnActive: {
-      background: "#0b0b0c",
-      color: "#ffffff",
-      boxShadow: "0 4px 12px rgba(11,11,12,0.12)",
+      background: "#C8FF4D",
+      color: "#101711",
+      boxShadow:
+        "0 5px 16px rgba(200,255,77,0.12)",
     },
+
+    /* ================= FORM ================= */
 
     form: {
       display: "flex",
       flexDirection: "column",
-      gap: "19px",
+      gap: "17px",
     },
 
     fieldLabel: {
       display: "flex",
       flexDirection: "column",
       gap: "7px",
-      fontSize: "11px",
+      fontSize: "10px",
       fontWeight: 700,
-      color: "#6b6b6f",
-      letterSpacing: "0.1px",
+      color: "#9AA69D",
+      letterSpacing: "0.2px",
     },
 
     input: {
-      padding: "10px 4px 11px",
-      border: "none",
-      borderBottom: "2px solid #e4ddd2",
-      borderRadius: 0,
-      background: "transparent",
-      color: "#1c1c1e",
-      fontSize: "14px",
+      padding: "12px 13px",
+      border: "1px solid #29342C",
+      borderRadius: "9px",
+      background: "#101711",
+      color: "#F5F8F3",
+      fontSize: "13px",
       outline: "none",
       width: "100%",
       boxSizing: "border-box",
       fontFamily: "inherit",
-      transition: "border-color 0.2s ease",
+      transition:
+        "border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease",
     },
 
     passwordWrapper: {
@@ -1038,41 +1243,46 @@ function getStyles(isMobile) {
     },
 
     passwordInput: {
-      paddingRight: "32px",
+      paddingRight: "42px",
     },
 
     eyeIcon: {
       position: "absolute",
-      right: "0",
+      right: "8px",
       top: "50%",
       transform: "translateY(-50%)",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "5px",
-      transition: "opacity 0.15s ease",
+      padding: "7px",
+      transition:
+        "opacity 0.15s ease",
     },
 
     forgotLink: {
       alignSelf: "flex-end",
-      fontSize: "11px",
-      color: "#e2651a",
+      fontSize: "10px",
+      color: "#A8C936",
       cursor: "pointer",
-      marginTop: "-9px",
+      marginTop: "-7px",
       fontWeight: 700,
+      transition: "color 0.2s ease",
     },
+
+    /* ================= BUTTON ================= */
 
     button: {
       marginTop: "4px",
-      padding: "14px 16px",
+      padding: "13px 16px",
       minHeight: "48px",
-      borderRadius: "11px",
-      border: "2px solid #0b0b0c",
-      background: "#0b0b0c",
-      color: "#ffffff",
-      fontSize: "13px",
-      fontWeight: 700,
+      borderRadius: "10px",
+      border: "1px solid #C8FF4D",
+      background: "#C8FF4D",
+      color: "#101711",
+      fontSize: "12px",
+      fontWeight: 800,
+      letterSpacing: "0.1px",
       cursor: "pointer",
       transition:
         "background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
@@ -1090,19 +1300,23 @@ function getStyles(isMobile) {
     buttonArrow: {
       fontSize: "17px",
       lineHeight: 1,
-      transition: "transform 0.2s ease",
+      fontWeight: 500,
     },
 
     buttonDisabled: {
-      opacity: 0.55,
+      opacity: 0.5,
       cursor: "not-allowed",
+      transform: "none",
+      boxShadow: "none",
     },
 
+    /* ================= BANNERS ================= */
+
     banner: {
-      padding: "11px 13px",
-      borderRadius: "11px",
-      marginBottom: "17px",
-      fontSize: "12px",
+      padding: "11px 12px",
+      borderRadius: "10px",
+      marginBottom: "16px",
+      fontSize: "11px",
       fontWeight: 600,
       display: "flex",
       alignItems: "center",
@@ -1111,15 +1325,15 @@ function getStyles(isMobile) {
     },
 
     bannerError: {
-      background: "#fff0ee",
-      color: "#e0432a",
-      border: "1px solid #ffd0c8",
+      background: "rgba(255,92,85,0.08)",
+      color: "#FF8A84",
+      border: "1px solid rgba(255,92,85,0.22)",
     },
 
     bannerSuccess: {
-      background: "#fff0e0",
-      color: "#c2660f",
-      border: "1px solid #ffd9b3",
+      background: "rgba(200,255,77,0.08)",
+      color: "#C8FF4D",
+      border: "1px solid rgba(200,255,77,0.2)",
     },
 
     bannerIcon: {
@@ -1130,20 +1344,23 @@ function getStyles(isMobile) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "rgba(226,101,26,0.1)",
+      background: "rgba(200,255,77,0.09)",
       fontSize: "10px",
       fontWeight: 800,
     },
 
+    /* ================= TEMP PASSWORD ================= */
+
     tempPasswordBox: {
       background:
-        "linear-gradient(135deg, #fff8f0, #fff4e8)",
-      border: "1px solid #ffd9b3",
-      borderRadius: "13px",
+        "linear-gradient(135deg, rgba(200,255,77,0.08), rgba(168,201,54,0.04))",
+      border: "1px solid rgba(200,255,77,0.2)",
+      borderRadius: "12px",
       padding: "15px",
-      marginBottom: "17px",
+      marginBottom: "16px",
       textAlign: "center",
-      animation: "gs-glow 2.5s ease-in-out infinite",
+      animation:
+        "gs-glow 2.5s ease-in-out infinite",
     },
 
     tempPasswordTop: {
@@ -1157,8 +1374,8 @@ function getStyles(isMobile) {
       width: "18px",
       height: "18px",
       borderRadius: "50%",
-      background: "#ff7a1a",
-      color: "#fff",
+      background: "#C8FF4D",
+      color: "#101711",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -1167,46 +1384,53 @@ function getStyles(isMobile) {
     },
 
     tempPasswordLabel: {
-      fontSize: "11px",
-      color: "#a68f75",
+      fontSize: "10px",
+      color: "#9AA69D",
       margin: 0,
       fontWeight: 700,
     },
 
     tempPasswordValue: {
-      fontSize: "19px",
-      fontWeight: 800,
-      color: "#c2660f",
+      fontFamily:
+        "'Oswald', 'Inter', sans-serif",
+      fontSize: "21px",
+      fontWeight: 600,
+      color: "#C8FF4D",
       margin: "7px 0",
       letterSpacing: "1.5px",
     },
 
     tempPasswordHint: {
-      fontSize: "10px",
-      color: "#bcae9c",
+      fontSize: "9px",
+      color: "#68756C",
       margin: 0,
     },
 
+    /* ================= TOGGLE ================= */
+
     toggleText: {
       textAlign: "center",
-      marginTop: "23px",
-      fontSize: "12px",
-      color: "#8f867a",
+      marginTop: "20px",
+      marginBottom: 0,
+      fontSize: "11px",
+      color: "#6F7B72",
     },
 
     toggleLink: {
-      color: "#e2651a",
+      color: "#A8C936",
       fontWeight: 700,
       cursor: "pointer",
-      padding: "3px 6px",
-      borderRadius: "6px",
-      transition: "background 0.15s ease",
+      padding: "3px 5px",
+      borderRadius: "5px",
+      transition: "color 0.15s ease",
     },
 
+    /* ================= SECURITY ================= */
+
     securityRow: {
-      marginTop: "24px",
-      paddingTop: "15px",
-      borderTop: "1px solid #eee6dc",
+      marginTop: "20px",
+      paddingTop: "14px",
+      borderTop: "1px solid #29342C",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -1214,11 +1438,12 @@ function getStyles(isMobile) {
     },
 
     securityIcon: {
-      width: "22px",
-      height: "22px",
+      width: "25px",
+      height: "25px",
       borderRadius: "7px",
-      background: "#fff0e0",
-      color: "#e2651a",
+      background: "rgba(200,255,77,0.08)",
+      color: "#C8FF4D",
+      border: "1px solid rgba(200,255,77,0.14)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -1229,7 +1454,7 @@ function getStyles(isMobile) {
     securityTitle: {
       display: "block",
       fontSize: "10px",
-      color: "#6f665c",
+      color: "#A8B2AA",
       fontWeight: 800,
     },
 
@@ -1237,7 +1462,28 @@ function getStyles(isMobile) {
       display: "block",
       marginTop: "2px",
       fontSize: "9px",
-      color: "#afa69b",
+      color: "#626E65",
+    },
+
+    /* ================= FOOTER ================= */
+
+    formFooter: {
+      marginTop: "18px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
+      fontSize: "7px",
+      letterSpacing: "1.7px",
+      fontWeight: 800,
+      color: "#465148",
+    },
+
+    footerDot: {
+      width: "4px",
+      height: "4px",
+      borderRadius: "50%",
+      background: "#A8C936",
     },
   };
 }
