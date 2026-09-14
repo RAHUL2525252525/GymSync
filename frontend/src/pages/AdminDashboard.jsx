@@ -236,9 +236,22 @@ export default function AdminDashboard() {
           box-sizing: border-box;
         }
 
-        body {
+        html,
+        body,
+        #root {
           margin: 0;
+          min-height: 100%;
           background: #08090b;
+        }
+
+        body {
+          overflow-x: hidden;
+        }
+
+        button,
+        input,
+        select {
+          font-family: inherit;
         }
 
         .admin-scroll::-webkit-scrollbar {
@@ -286,6 +299,10 @@ export default function AdminDashboard() {
           color: #ffffff !important;
         }
 
+        .admin-action {
+          transition: all 0.2s ease;
+        }
+
         .admin-action:hover {
           transform: translateY(-1px);
         }
@@ -299,14 +316,42 @@ export default function AdminDashboard() {
           background: #15181d !important;
         }
 
+        .admin-stat {
+          transition: all 0.2s ease;
+        }
+
         .admin-stat:hover {
           transform: translateY(-2px);
           border-color: #343a42 !important;
         }
 
+        select option {
+          background: #0d0f12;
+          color: #f5f5f5;
+        }
+
+        input[type="date"] {
+          color-scheme: dark;
+        }
+
         @media (max-width: 768px) {
+          html,
+          body,
+          #root {
+            width: 100%;
+            min-width: 0;
+          }
+
           .desktop-only {
             display: none !important;
+          }
+
+          .mobile-nav-scroll {
+            scrollbar-width: none;
+          }
+
+          .mobile-nav-scroll::-webkit-scrollbar {
+            display: none;
           }
         }
       `}</style>
@@ -337,7 +382,12 @@ export default function AdminDashboard() {
 
         <div style={s.menuLabel}>CONTROL CENTER</div>
 
-        <nav style={s.nav} className="admin-scroll">
+        <nav
+          style={s.nav}
+          className={`admin-scroll ${
+            isMobile ? "mobile-nav-scroll" : ""
+          }`}
+        >
           {tabs.map((t) => (
             <div
               key={t.id}
@@ -397,12 +447,13 @@ export default function AdminDashboard() {
               LIVE
             </div>
 
-            <div style={s.headerDate}>
-              ADMIN PANEL
-            </div>
+            <div style={s.headerDate}>ADMIN PANEL</div>
 
             {isMobile && (
-              <button style={s.mobileLogout} onClick={handleLogout}>
+              <button
+                style={s.mobileLogout}
+                onClick={handleLogout}
+              >
                 ↪
               </button>
             )}
@@ -413,6 +464,7 @@ export default function AdminDashboard() {
           {message && (
             <div style={s.toast}>
               <div style={s.toastIcon}>✓</div>
+
               <div>
                 <div style={s.toastTitle}>Action completed</div>
                 <div style={s.toastText}>{message}</div>
@@ -426,9 +478,14 @@ export default function AdminDashboard() {
               <div style={s.overviewIntro}>
                 <div>
                   <div style={s.sectionEyebrow}>COMMAND CENTER</div>
-                  <h2 style={s.overviewTitle}>Gym Operations</h2>
+
+                  <h2 style={s.overviewTitle}>
+                    Gym Operations
+                  </h2>
+
                   <p style={s.overviewSubtitle}>
-                    Monitor your gym activity, members and revenue from one place.
+                    Monitor your gym activity, members and revenue
+                    from one place.
                   </p>
                 </div>
 
@@ -484,8 +541,13 @@ export default function AdminDashboard() {
                 <div style={s.infoPanel}>
                   <div style={s.panelHeader}>
                     <div>
-                      <div style={s.panelEyebrow}>QUICK VIEW</div>
-                      <h3 style={s.panelTitle}>Gym Statistics</h3>
+                      <div style={s.panelEyebrow}>
+                        QUICK VIEW
+                      </div>
+
+                      <h3 style={s.panelTitle}>
+                        Gym Statistics
+                      </h3>
                     </div>
 
                     <span style={s.panelIcon}>◈</span>
@@ -545,7 +607,10 @@ export default function AdminDashboard() {
                 s={s}
               />
 
-              <div style={s.tableWrapper} className="admin-table-wrap">
+              <div
+                style={s.tableWrapper}
+                className="admin-table-wrap"
+              >
                 <table style={s.table} className="admin-table">
                   <thead>
                     <tr>
@@ -627,7 +692,9 @@ export default function AdminDashboard() {
                 <div style={s.formTitleRow}>
                   <div>
                     <div style={s.formEyebrow}>CREATE NEW</div>
-                    <h3 style={s.formTitle}>Add Membership Plan</h3>
+                    <h3 style={s.formTitle}>
+                      Add Membership Plan
+                    </h3>
                   </div>
 
                   <div style={s.formNumber}>01</div>
@@ -698,7 +765,10 @@ export default function AdminDashboard() {
                 </div>
               </form>
 
-              <div style={s.tableWrapper} className="admin-table-wrap">
+              <div
+                style={s.tableWrapper}
+                className="admin-table-wrap"
+              >
                 <table style={s.table} className="admin-table">
                   <thead>
                     <tr>
@@ -726,7 +796,9 @@ export default function AdminDashboard() {
                           </span>
                         </td>
 
-                        <td style={s.priceCell}>₹{p.price}</td>
+                        <td style={s.priceCell}>
+                          ₹{p.price}
+                        </td>
 
                         <td style={s.td}>
                           {p.description || "-"}
@@ -827,7 +899,10 @@ export default function AdminDashboard() {
                 </div>
               </form>
 
-              <div style={s.tableWrapper} className="admin-table-wrap">
+              <div
+                style={s.tableWrapper}
+                className="admin-table-wrap"
+              >
                 <table style={s.table} className="admin-table">
                   <thead>
                     <tr>
@@ -897,11 +972,19 @@ export default function AdminDashboard() {
                 s={s}
               />
 
-              <form style={s.formCard} onSubmit={createMembership}>
+              <form
+                style={s.formCard}
+                onSubmit={createMembership}
+              >
                 <div style={s.formTitleRow}>
                   <div>
-                    <div style={s.formEyebrow}>ASSIGN MEMBERSHIP</div>
-                    <h3 style={s.formTitle}>Membership Details</h3>
+                    <div style={s.formEyebrow}>
+                      ASSIGN MEMBERSHIP
+                    </div>
+
+                    <h3 style={s.formTitle}>
+                      Membership Details
+                    </h3>
                   </div>
 
                   <div style={s.formNumber}>03</div>
@@ -1003,7 +1086,10 @@ export default function AdminDashboard() {
                 </div>
               </form>
 
-              <div style={s.tableWrapper} className="admin-table-wrap">
+              <div
+                style={s.tableWrapper}
+                className="admin-table-wrap"
+              >
                 <table style={s.table} className="admin-table">
                   <thead>
                     <tr>
@@ -1018,9 +1104,13 @@ export default function AdminDashboard() {
                   <tbody>
                     {memberships.map((m) => (
                       <tr key={m.id} style={s.tr}>
-                        <td style={s.idCell}>#{m.user_id}</td>
+                        <td style={s.idCell}>
+                          #{m.user_id}
+                        </td>
 
-                        <td style={s.idCell}>#{m.plan_id}</td>
+                        <td style={s.idCell}>
+                          #{m.plan_id}
+                        </td>
 
                         <td style={s.td}>{m.start_date}</td>
 
@@ -1069,8 +1159,13 @@ export default function AdminDashboard() {
               <form style={s.formCard} onSubmit={recordPayment}>
                 <div style={s.formTitleRow}>
                   <div>
-                    <div style={s.formEyebrow}>NEW TRANSACTION</div>
-                    <h3 style={s.formTitle}>Record Payment</h3>
+                    <div style={s.formEyebrow}>
+                      NEW TRANSACTION
+                    </div>
+
+                    <h3 style={s.formTitle}>
+                      Record Payment
+                    </h3>
                   </div>
 
                   <div style={s.formNumber}>04</div>
@@ -1121,7 +1216,10 @@ export default function AdminDashboard() {
                 </div>
               </form>
 
-              <div style={s.tableWrapper} className="admin-table-wrap">
+              <div
+                style={s.tableWrapper}
+                className="admin-table-wrap"
+              >
                 <table style={s.table} className="admin-table">
                   <thead>
                     <tr>
@@ -1135,7 +1233,9 @@ export default function AdminDashboard() {
                   <tbody>
                     {payments.map((p) => (
                       <tr key={p.id} style={s.tr}>
-                        <td style={s.idCell}>#{p.user_id}</td>
+                        <td style={s.idCell}>
+                          #{p.user_id}
+                        </td>
 
                         <td style={s.priceCell}>
                           ₹{p.amount}
@@ -1189,11 +1289,13 @@ function StatCard({ label, value, icon, number, s }) {
     <div style={s.statCard} className="admin-stat">
       <div style={s.statTop}>
         <span style={s.statNumber}>{number}</span>
+
         <span style={s.statIcon}>{icon}</span>
       </div>
 
       <div style={s.statBottom}>
         <div style={s.statLabel}>{label}</div>
+
         <div style={s.statValue}>{value}</div>
       </div>
 
@@ -1211,7 +1313,13 @@ function QuickItem({ label, value, s }) {
   );
 }
 
-function SectionHeader({ eyebrow, title, count, description, s }) {
+function SectionHeader({
+  eyebrow,
+  title,
+  count,
+  description,
+  s,
+}) {
   return (
     <div style={s.sectionHeader}>
       <div>
@@ -1256,7 +1364,9 @@ function EmptyState({ icon, title, text, s }) {
   return (
     <div style={s.emptyState}>
       <div style={s.emptyIcon}>{icon}</div>
+
       <div style={s.emptyTitle}>{title}</div>
+
       <div style={s.emptyText}>{text}</div>
     </div>
   );
@@ -1270,20 +1380,28 @@ function getStyles(isMobile) {
   return {
     page: {
       minHeight: "100vh",
+      width: "100%",
       display: "flex",
+      flexDirection: isMobile ? "column" : "row",
       background:
         "radial-gradient(circle at 80% 0%, rgba(255,122,26,0.07), transparent 28%), #08090b",
       color: "#f5f5f5",
-      fontFamily:
-        "'Inter', 'Segoe UI', Arial, sans-serif",
+      fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+      overflowX: "hidden",
     },
 
-    /* SIDEBAR */
+    /* =========================
+       SIDEBAR
+    ========================= */
 
     sidebar: {
       width: isMobile ? "100%" : "258px",
+      height: isMobile ? "auto" : "100vh",
       minHeight: isMobile ? "auto" : "100vh",
-      background: "#0d0f12",
+      flexShrink: 0,
+      background: isMobile
+        ? "linear-gradient(180deg, #0d0f12 0%, #0a0c0f 100%)"
+        : "#0d0f12",
       borderRight: isMobile
         ? "none"
         : "1px solid #20242a",
@@ -1291,29 +1409,35 @@ function getStyles(isMobile) {
         ? "1px solid #20242a"
         : "none",
       display: "flex",
-      flexDirection: isMobile ? "row" : "column",
+      flexDirection: isMobile ? "column" : "column",
       position: isMobile ? "sticky" : "fixed",
       top: 0,
       left: 0,
-      zIndex: 20,
-      padding: isMobile ? "14px" : "24px 18px",
+      zIndex: 30,
+      padding: isMobile ? "12px 12px 10px" : "24px 18px",
+      boxShadow: isMobile
+        ? "0 10px 35px rgba(0,0,0,0.35)"
+        : "none",
     },
 
     sidebarTop: {
       width: "100%",
+      flexShrink: 0,
     },
 
     adminLogo: {
       display: "flex",
       alignItems: "center",
       gap: "11px",
-      paddingBottom: isMobile ? "0" : "24px",
-      borderBottom: isMobile ? "none" : "1px solid #20242a",
+      paddingBottom: isMobile ? "11px" : "24px",
+      borderBottom: isMobile
+        ? "1px solid #1c2025"
+        : "1px solid #20242a",
     },
 
     logoMark: {
-      width: "40px",
-      height: "40px",
+      width: isMobile ? "38px" : "40px",
+      height: isMobile ? "38px" : "40px",
       borderRadius: "10px",
       background:
         "linear-gradient(145deg, #ff7a1a, #ff9b45)",
@@ -1380,6 +1504,7 @@ function getStyles(isMobile) {
     },
 
     menuLabel: {
+      display: isMobile ? "none" : "block",
       fontSize: "8px",
       fontWeight: 800,
       letterSpacing: "1.6px",
@@ -1388,46 +1513,59 @@ function getStyles(isMobile) {
     },
 
     nav: {
-      flex: 1,
+      flex: isMobile ? "none" : 1,
+      width: "100%",
+      minWidth: 0,
       display: "flex",
       flexDirection: isMobile ? "row" : "column",
-      gap: "4px",
-      overflowX: "auto",
-      overflowY: "auto",
+      gap: isMobile ? "6px" : "4px",
+      overflowX: isMobile ? "auto" : "hidden",
+      overflowY: isMobile ? "hidden" : "auto",
+      padding: isMobile ? "9px 1px 1px" : "0",
+      scrollBehavior: "smooth",
     },
 
     navItem: {
       position: "relative",
       display: "flex",
       alignItems: "center",
-      gap: "12px",
-      minHeight: "45px",
-      padding: "0 12px",
+      justifyContent: isMobile ? "center" : "flex-start",
+      gap: isMobile ? "7px" : "12px",
+      minHeight: isMobile ? "40px" : "45px",
+      height: isMobile ? "40px" : "45px",
+      padding: isMobile ? "0 12px" : "0 12px",
       borderRadius: "8px",
       color: "#858b94",
       cursor: "pointer",
-      fontSize: "12px",
+      fontSize: isMobile ? "10px" : "12px",
       fontWeight: 600,
       whiteSpace: "nowrap",
+      flexShrink: 0,
       transition: "all 0.2s ease",
+      border: isMobile
+        ? "1px solid transparent"
+        : "none",
     },
 
     navItemActive: {
       background:
         "linear-gradient(90deg, rgba(255,122,26,0.15), rgba(255,122,26,0.04))",
       color: "#ffffff",
+      borderColor: isMobile
+        ? "rgba(255,122,26,0.18)"
+        : "transparent",
     },
 
     navIcon: {
-      width: "25px",
-      height: "25px",
+      width: isMobile ? "23px" : "25px",
+      height: isMobile ? "23px" : "25px",
       borderRadius: "6px",
       background: "#15181c",
       border: "1px solid #242930",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "13px",
+      fontSize: isMobile ? "11px" : "13px",
       flexShrink: 0,
     },
 
@@ -1435,14 +1573,18 @@ function getStyles(isMobile) {
       background: "#ff7a1a",
       color: "#090a0c",
       borderColor: "#ff7a1a",
+      boxShadow:
+        "0 4px 14px rgba(255,122,26,0.18)",
     },
 
     activeLine: {
       position: "absolute",
-      right: "0",
-      top: "10px",
-      bottom: "10px",
-      width: "2px",
+      right: isMobile ? "8px" : "0",
+      left: isMobile ? "8px" : "auto",
+      top: isMobile ? "auto" : "10px",
+      bottom: isMobile ? "0" : "10px",
+      width: isMobile ? "auto" : "2px",
+      height: isMobile ? "2px" : "auto",
       background: "#ff7a1a",
       borderRadius: "3px",
     },
@@ -1469,7 +1611,8 @@ function getStyles(isMobile) {
       height: "6px",
       background: "#54d98b",
       borderRadius: "50%",
-      boxShadow: "0 0 8px rgba(84,217,139,0.6)",
+      boxShadow:
+        "0 0 8px rgba(84,217,139,0.6)",
     },
 
     logoutBtn: {
@@ -1488,25 +1631,29 @@ function getStyles(isMobile) {
       gap: "8px",
     },
 
-    /* MAIN */
+    /* =========================
+       MAIN
+    ========================= */
 
     main: {
       flex: 1,
-      marginLeft: isMobile ? "0" : "258px",
+      width: isMobile ? "100%" : "auto",
       minWidth: 0,
+      marginLeft: isMobile ? "0" : "258px",
     },
 
     header: {
-      minHeight: "82px",
+      minHeight: isMobile ? "68px" : "82px",
       borderBottom: "1px solid #20242a",
-      background: "rgba(9,10,12,0.9)",
+      background: "rgba(9,10,12,0.94)",
       backdropFilter: "blur(15px)",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: isMobile ? "14px 16px" : "0 34px",
+      gap: "12px",
+      padding: isMobile ? "12px 14px" : "0 34px",
       position: "sticky",
-      top: 0,
+      top: isMobile ? "0" : "0",
       zIndex: 15,
     },
 
@@ -1528,7 +1675,8 @@ function getStyles(isMobile) {
     headerRight: {
       display: "flex",
       alignItems: "center",
-      gap: "12px",
+      gap: isMobile ? "7px" : "12px",
+      flexShrink: 0,
     },
 
     liveBadge: {
@@ -1550,9 +1698,12 @@ function getStyles(isMobile) {
       height: "5px",
       background: "#54d98b",
       borderRadius: "50%",
+      boxShadow:
+        "0 0 7px rgba(84,217,139,0.5)",
     },
 
     headerDate: {
+      display: isMobile ? "none" : "block",
       fontSize: "9px",
       color: "#555b63",
       letterSpacing: "1px",
@@ -1566,23 +1717,28 @@ function getStyles(isMobile) {
       border: "1px solid #292e35",
       borderRadius: "7px",
       cursor: "pointer",
+      fontSize: "14px",
     },
 
     content: {
-      padding: isMobile ? "20px 15px" : "34px",
+      width: "100%",
+      padding: isMobile ? "18px 13px 30px" : "34px",
       maxWidth: "1500px",
       margin: "0 auto",
       minHeight: "calc(100vh - 82px)",
+      overflowX: "hidden",
     },
 
-    /* TOAST */
+    /* =========================
+       TOAST
+    ========================= */
 
     toast: {
       display: "flex",
       alignItems: "center",
       gap: "11px",
       padding: "12px 15px",
-      marginBottom: "22px",
+      marginBottom: "20px",
       border: "1px solid rgba(255,122,26,0.25)",
       background: "rgba(255,122,26,0.06)",
       borderRadius: "8px",
@@ -1599,6 +1755,7 @@ function getStyles(isMobile) {
       justifyContent: "center",
       fontWeight: 900,
       fontSize: "12px",
+      flexShrink: 0,
     },
 
     toastTitle: {
@@ -1615,14 +1772,16 @@ function getStyles(isMobile) {
       marginTop: "2px",
     },
 
-    /* OVERVIEW */
+    /* =========================
+       OVERVIEW
+    ========================= */
 
     overviewIntro: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "flex-end",
       gap: "20px",
-      marginBottom: "25px",
+      marginBottom: isMobile ? "18px" : "25px",
     },
 
     sectionEyebrow: {
@@ -1643,6 +1802,8 @@ function getStyles(isMobile) {
       margin: "7px 0 0",
       color: "#6f757d",
       fontSize: "11px",
+      lineHeight: 1.5,
+      maxWidth: isMobile ? "310px" : "none",
     },
 
     overviewTag: {
@@ -1662,12 +1823,14 @@ function getStyles(isMobile) {
       height: "5px",
       background: "#ff7a1a",
       borderRadius: "50%",
+      boxShadow:
+        "0 0 7px rgba(255,122,26,0.6)",
     },
 
     statsGrid: {
       display: "grid",
       gridTemplateColumns: isMobile
-        ? "1fr 1fr"
+        ? "repeat(2, minmax(0, 1fr))"
         : "repeat(5, minmax(0, 1fr))",
       gap: isMobile ? "9px" : "12px",
       marginBottom: "18px",
@@ -1675,12 +1838,12 @@ function getStyles(isMobile) {
 
     statCard: {
       position: "relative",
-      minHeight: isMobile ? "135px" : "158px",
+      minHeight: isMobile ? "125px" : "158px",
       background:
         "linear-gradient(145deg, #111418, #0d0f12)",
       border: "1px solid #22272d",
       borderRadius: "10px",
-      padding: isMobile ? "13px" : "16px",
+      padding: isMobile ? "12px" : "16px",
       overflow: "hidden",
       transition: "all 0.2s ease",
     },
@@ -1699,8 +1862,8 @@ function getStyles(isMobile) {
     },
 
     statIcon: {
-      width: "30px",
-      height: "30px",
+      width: "29px",
+      height: "29px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -1714,23 +1877,28 @@ function getStyles(isMobile) {
 
     statBottom: {
       position: "absolute",
-      left: isMobile ? "13px" : "16px",
-      bottom: isMobile ? "14px" : "17px",
+      left: isMobile ? "12px" : "16px",
+      bottom: isMobile ? "12px" : "17px",
+      right: "8px",
     },
 
     statLabel: {
-      fontSize: "8px",
+      fontSize: "7px",
       color: "#626871",
       fontWeight: 800,
-      letterSpacing: "0.8px",
+      letterSpacing: "0.7px",
       marginBottom: "5px",
+      lineHeight: 1.3,
     },
 
     statValue: {
-      fontSize: isMobile ? "22px" : "26px",
+      fontSize: isMobile ? "21px" : "26px",
       fontWeight: 850,
       letterSpacing: "-0.7px",
       color: "#f5f5f5",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
     },
 
     statAccent: {
@@ -1754,7 +1922,7 @@ function getStyles(isMobile) {
       background: "#101317",
       border: "1px solid #22272d",
       borderRadius: "10px",
-      padding: isMobile ? "16px" : "20px",
+      padding: isMobile ? "15px" : "20px",
     },
 
     panelHeader: {
@@ -1785,7 +1953,9 @@ function getStyles(isMobile) {
 
     quickGrid: {
       display: "grid",
-      gridTemplateColumns: "repeat(4, 1fr)",
+      gridTemplateColumns: isMobile
+        ? "repeat(2, 1fr)"
+        : "repeat(4, 1fr)",
       gap: "1px",
       background: "#252a30",
     },
@@ -1829,6 +1999,7 @@ function getStyles(isMobile) {
       alignItems: "center",
       justifyContent: "center",
       fontWeight: 900,
+      flexShrink: 0,
     },
 
     noteTitle: {
@@ -1845,15 +2016,18 @@ function getStyles(isMobile) {
       margin: "7px 0 0",
     },
 
-    /* SECTION */
+    /* =========================
+       SECTION
+    ========================= */
 
     sectionHeader: {
-      marginBottom: "22px",
+      marginBottom: isMobile ? "18px" : "22px",
     },
 
     sectionTitle: {
       display: "flex",
       alignItems: "center",
+      flexWrap: "wrap",
       gap: "9px",
       margin: 0,
       fontSize: isMobile ? "23px" : "27px",
@@ -1864,6 +2038,7 @@ function getStyles(isMobile) {
       margin: "7px 0 0",
       color: "#6d737b",
       fontSize: "11px",
+      lineHeight: 1.5,
     },
 
     countBadge: {
@@ -1881,14 +2056,18 @@ function getStyles(isMobile) {
       fontWeight: 800,
     },
 
-    /* FORMS */
+    /* =========================
+       FORMS
+    ========================= */
 
     formCard: {
       background: "#101317",
       border: "1px solid #22272d",
       borderRadius: "10px",
-      padding: isMobile ? "15px" : "19px",
+      padding: isMobile ? "14px" : "19px",
       marginBottom: "18px",
+      boxShadow:
+        "0 10px 30px rgba(0,0,0,0.12)",
     },
 
     formTitleRow: {
@@ -1941,6 +2120,7 @@ function getStyles(isMobile) {
     },
 
     primaryBtn: {
+      minHeight: "42px",
       height: "42px",
       padding: "0 17px",
       background: "#ff7a1a",
@@ -1955,16 +2135,21 @@ function getStyles(isMobile) {
       alignItems: "center",
       justifyContent: "center",
       gap: "7px",
-      boxShadow: "0 5px 18px rgba(255,122,26,0.12)",
+      boxShadow:
+        "0 5px 18px rgba(255,122,26,0.12)",
     },
 
-    /* TABLE */
+    /* =========================
+       TABLE
+    ========================= */
 
     tableWrapper: {
+      width: "100%",
       background: "#101317",
       border: "1px solid #22272d",
       borderRadius: "10px",
       overflow: "auto",
+      WebkitOverflowScrolling: "touch",
     },
 
     table: {
@@ -2108,7 +2293,9 @@ function getStyles(isMobile) {
       background: "currentColor",
     },
 
-    /* EMPTY */
+    /* =========================
+       EMPTY
+    ========================= */
 
     emptyState: {
       padding: "55px 20px",
@@ -2142,3 +2329,4 @@ function getStyles(isMobile) {
     },
   };
 }
+
