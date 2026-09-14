@@ -338,12 +338,12 @@ export default function UserDashboard() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap');
         .gs-table-wrapper { -webkit-overflow-scrolling: touch; }
-        .gs-nav-item:hover { background: rgba(255,255,255,0.05); }
+        .gs-nav-item:hover { background: #f4f8f3; }
         .gs-nav-item:focus-visible,
         .gs-btn:focus-visible,
         .gs-logout:focus-visible,
         .gs-bottom-tab:focus-visible {
-          outline: 2px solid #ff5a1f;
+          outline: 2px solid #a8c936;
           outline-offset: 2px;
         }
         .gs-btn { transition: transform 0.12s ease, box-shadow 0.12s ease; }
@@ -354,9 +354,9 @@ export default function UserDashboard() {
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes gs-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(200,255,77,0.55); }
-          70% { box-shadow: 0 0 0 7px rgba(200,255,77,0); }
-          100% { box-shadow: 0 0 0 0 rgba(200,255,77,0); }
+          0% { box-shadow: 0 0 0 0 rgba(184,223,69,0.55); }
+          70% { box-shadow: 0 0 0 7px rgba(184,223,69,0); }
+          100% { box-shadow: 0 0 0 0 rgba(184,223,69,0); }
         }
         @keyframes gs-bump {
           0% { transform: scale(1); }
@@ -368,7 +368,7 @@ export default function UserDashboard() {
           100% { background-position: calc(200px + 100%) 0; }
         }
         .gs-skeleton-block {
-          background: linear-gradient(90deg, #1a1d21 25%, #22262b 37%, #1a1d21 63%);
+          background: linear-gradient(90deg, #eef2ef 25%, #f8faf8 37%, #eef2ef 63%);
           background-size: 400px 100%;
           animation: gs-skeleton 1.4s ease-in-out infinite;
         }
@@ -387,7 +387,7 @@ export default function UserDashboard() {
             <IconDumbbell width={20} height={20} />
           </div>
           <div>
-            <h2 style={s.logo}>Gym Tracker</h2>
+            <h2 style={s.logo}>GymSync</h2>
             {!isMobile && <p style={s.welcomeText}>Welcome, {name}</p>}
           </div>
           {isMobile && (
@@ -423,7 +423,7 @@ export default function UserDashboard() {
             </nav>
 
             <div style={s.streakChip}>
-              <IconFlame width={16} height={16} color="#ff5a1f" />
+              <IconFlame width={16} height={16} color="#a8c936" />
               <span>
                 {streak > 0 ? `${streak} day streak` : "Start your streak today"}
               </span>
@@ -455,7 +455,7 @@ export default function UserDashboard() {
                     label="Total visits"
                     value={Math.round(animatedVisits)}
                     icon={<IconVisits width={20} height={20} />}
-                    accent="#ff5a1f"
+                    accent="#a8c936"
                     s={s}
                   />
                 </div>
@@ -463,14 +463,14 @@ export default function UserDashboard() {
                   label="Total paid"
                   value={`₹${animatedPaid.toFixed(2)}`}
                   icon={<IconCoin width={20} height={20} />}
-                  accent="#c8ff4d"
+                  accent="#7fa51f"
                   s={s}
                 />
                 <StatCard
                   label="Membership status"
                   value={summary.active_membership ? summary.active_membership.status : "No active plan"}
                   icon={<IconBadge width={20} height={20} />}
-                  accent={summary.active_membership ? "#4dd0ff" : "#6b7078"}
+                  accent={summary.active_membership ? "#4dd0ff" : "#87938a"}
                   s={s}
                 />
               </div>
@@ -526,11 +526,11 @@ export default function UserDashboard() {
                             style={{
                               ...s.weekBarFill,
                               height: `${(d.count / maxDayCount) * 100}%`,
-                              background: d.isToday ? "#ff5a1f" : "#3a3f45",
+                              background: d.isToday ? "#a8c936" : "#cbd5ce",
                             }}
                           />
                         </div>
-                        <span style={{ ...s.weekBarLabel, color: d.isToday ? "#ff5a1f" : "#6b7078" }}>
+                        <span style={{ ...s.weekBarLabel, color: d.isToday ? "#76951e" : "#8a958d" }}>
                           {d.label}
                         </span>
                       </div>
@@ -538,7 +538,7 @@ export default function UserDashboard() {
                   </div>
 
                   <div style={s.streakRow}>
-                    <IconFlame width={15} height={15} color="#ff5a1f" />
+                    <IconFlame width={15} height={15} color="#a8c936" />
                     <span>
                       {streak > 0
                         ? `${streak}-day streak — keep it going`
@@ -764,13 +764,13 @@ function GoalRing({ progress }) {
   const offset = circumference * (1 - progress);
   return (
     <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
-      <circle cx="28" cy="28" r={radius} fill="none" stroke="#24272b" strokeWidth="5" />
+      <circle cx="28" cy="28" r={radius} fill="none" stroke="#e6ece7" strokeWidth="5" />
       <circle
         cx="28"
         cy="28"
         r={radius}
         fill="none"
-        stroke="#ff5a1f"
+        stroke="#a8c936"
         strokeWidth="5"
         strokeLinecap="round"
         strokeDasharray={circumference}
@@ -814,218 +814,290 @@ function getStyles(isMobile) {
       flexDirection: isMobile ? "column" : "row",
       minHeight: "100vh",
       fontFamily: bodyFont,
-      background: "#101214",
-      color: "#f4f2ee",
+      background: "#f4f7f5",
+      color: "#17221c",
     },
+
     sidebar: {
-      width: isMobile ? "100%" : "240px",
-      background: "#17191c",
-      color: "#f4f2ee",
-      padding: isMobile ? "14px 16px" : "26px 18px",
+      width: isMobile ? "100%" : "258px",
+      background: "#ffffff",
+      color: "#17221c",
+      padding: isMobile ? "14px 16px" : "28px 18px",
       display: "flex",
       flexDirection: "column",
-      borderRight: isMobile ? "none" : "1px solid #24272b",
-      borderBottom: isMobile ? "1px solid #24272b" : "none",
+      borderRight: isMobile ? "none" : "1px solid #e2e9e4",
+      borderBottom: isMobile ? "1px solid #e2e9e4" : "none",
       position: isMobile ? "sticky" : "static",
       top: 0,
       zIndex: 10,
       boxSizing: "border-box",
+      boxShadow: isMobile ? "0 3px 16px rgba(23,34,28,0.05)" : "none",
     },
+
     brandRow: {
       display: "flex",
       alignItems: "center",
       gap: "12px",
-      marginBottom: isMobile ? "0" : "32px",
+      marginBottom: isMobile ? "0" : "30px",
       paddingBottom: isMobile ? "0" : "22px",
-      borderBottom: isMobile ? "none" : "1px solid #24272b",
+      borderBottom: isMobile ? "none" : "1px solid #edf1ee",
     },
+
     logoBadge: {
-      width: isMobile ? "36px" : "40px",
-      height: isMobile ? "36px" : "40px",
-      borderRadius: "10px",
-      background: "#ff5a1f",
-      color: "#101214",
+      width: isMobile ? "38px" : "44px",
+      height: isMobile ? "38px" : "44px",
+      borderRadius: "13px",
+      background: "#d9ff57",
+      color: "#162017",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       flexShrink: 0,
+      boxShadow: "0 8px 18px rgba(160,190,45,0.18)",
     },
+
     logo: {
       fontFamily: displayFont,
-      fontSize: isMobile ? "16px" : "18px",
+      fontSize: isMobile ? "19px" : "22px",
       margin: 0,
-      color: "#f4f2ee",
-      fontWeight: 600,
-      letterSpacing: "0.2px",
+      color: "#142019",
+      fontWeight: 700,
+      letterSpacing: "0.3px",
     },
-    welcomeText: { fontSize: "12px", color: "#8d9096", margin: "3px 0 0 0" },
+
+    welcomeText: {
+      fontSize: "12px",
+      color: "#7c887f",
+      margin: "3px 0 0 0",
+    },
+
     nav: {
       display: "flex",
       flexDirection: "column",
-      gap: "2px",
+      gap: "5px",
       flex: 1,
     },
+
     navItem: {
-      padding: "11px 12px",
-      borderRadius: "8px",
+      padding: "12px 13px",
+      borderRadius: "11px",
       cursor: "pointer",
       fontSize: "14px",
-      color: "#9a9ea5",
+      color: "#68746b",
       display: "flex",
       alignItems: "center",
-      gap: "10px",
-      fontWeight: 500,
+      gap: "11px",
+      fontWeight: 600,
       whiteSpace: "nowrap",
       borderLeft: "3px solid transparent",
+      transition: "all 0.18s ease",
     },
-    navIcon: { display: "flex", alignItems: "center" },
+
+    navIcon: {
+      display: "flex",
+      alignItems: "center",
+    },
+
     navItemActive: {
-      background: "rgba(255,90,31,0.1)",
-      color: "#ff5a1f",
-      fontWeight: 600,
-      borderLeft: "3px solid #ff5a1f",
+      background: "#f0f8df",
+      color: "#527000",
+      fontWeight: 700,
+      borderLeft: "3px solid #a8c936",
+      boxShadow: "inset 0 0 0 1px #e3efc2",
     },
+
     streakChip: {
       marginTop: "16px",
       display: "flex",
       alignItems: "center",
       gap: "8px",
       fontSize: "12px",
-      color: "#c3c6cb",
-      background: "#1c1f22",
-      border: "1px solid #24272b",
-      borderRadius: "8px",
-      padding: "9px 10px",
+      color: "#526057",
+      background: "#f7faf7",
+      border: "1px solid #e4ebe5",
+      borderRadius: "11px",
+      padding: "10px 11px",
     },
+
     logoutBtn: {
       marginTop: "14px",
       padding: "11px",
-      background: "transparent",
-      border: "1px solid #2a2d31",
-      borderRadius: "8px",
-      color: "#c3c6cb",
+      background: "#ffffff",
+      border: "1px solid #dfe7e1",
+      borderRadius: "11px",
+      color: "#667269",
       cursor: "pointer",
-      fontWeight: 600,
+      fontWeight: 700,
       fontSize: "13px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       gap: "8px",
+      transition: "all 0.18s ease",
     },
+
     logoutBtnMobile: {
       marginLeft: "auto",
-      width: "34px",
-      height: "34px",
-      background: "transparent",
-      border: "1px solid #2a2d31",
-      borderRadius: "9px",
-      color: "#c3c6cb",
+      width: "36px",
+      height: "36px",
+      background: "#f7faf7",
+      border: "1px solid #dfe7e1",
+      borderRadius: "10px",
+      color: "#667269",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       flexShrink: 0,
     },
+
     content: {
       flex: 1,
-      padding: isMobile ? "16px" : "36px",
-      paddingBottom: isMobile ? "84px" : "36px",
+      padding: isMobile ? "18px 16px" : "38px 42px",
+      paddingBottom: isMobile ? "88px" : "38px",
       overflowY: "auto",
       minWidth: 0,
       boxSizing: "border-box",
+      background:
+        "radial-gradient(circle at 92% 0%, rgba(217,255,87,0.18), transparent 24%), #f4f7f5",
     },
+
     heading: {
-      marginBottom: isMobile ? "16px" : "26px",
-      color: "#f4f2ee",
+      marginBottom: isMobile ? "17px" : "28px",
+      color: "#142019",
       fontFamily: displayFont,
-      fontSize: isMobile ? "20px" : "28px",
-      fontWeight: 600,
-      letterSpacing: "0.2px",
+      fontSize: isMobile ? "24px" : "32px",
+      fontWeight: 700,
+      letterSpacing: "0.25px",
     },
+
     statsGrid: {
       display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: isMobile ? "10px" : "16px",
-      marginBottom: isMobile ? "16px" : "22px",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(210px, 1fr))",
+      gap: isMobile ? "11px" : "17px",
+      marginBottom: isMobile ? "17px" : "22px",
     },
+
     statCard: {
-      background: "#17191c",
-      borderRadius: "10px",
-      borderLeft: "3px solid",
-      padding: isMobile ? "16px" : "20px",
+      background: "#ffffff",
+      borderRadius: "16px",
+      borderLeft: "4px solid",
+      padding: isMobile ? "17px" : "21px",
       display: "flex",
       alignItems: "center",
       gap: "14px",
+      boxShadow: "0 8px 26px rgba(31,51,39,0.06)",
+      borderTop: "1px solid #edf2ee",
+      borderRight: "1px solid #edf2ee",
+      borderBottom: "1px solid #edf2ee",
     },
+
     statIconWrap: {
-      width: "40px",
-      height: "40px",
-      borderRadius: "10px",
-      background: "#1e2124",
+      width: "44px",
+      height: "44px",
+      borderRadius: "13px",
+      background: "#f2f7ed",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       flexShrink: 0,
     },
-    statLabel: { fontSize: "12px", color: "#8d9096", marginBottom: "4px", fontWeight: 500 },
+
+    statLabel: {
+      fontSize: "12px",
+      color: "#7a867d",
+      marginBottom: "4px",
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.6px",
+    },
+
     statValue: {
       fontFamily: displayFont,
-      fontSize: isMobile ? "20px" : "24px",
-      color: "#f4f2ee",
+      fontSize: isMobile ? "22px" : "27px",
+      color: "#17221c",
       margin: 0,
-      fontWeight: 600,
+      fontWeight: 700,
       textTransform: "capitalize",
     },
 
     midGrid: {
       display: "grid",
-      gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr",
-      gap: isMobile ? "12px" : "16px",
+      gridTemplateColumns: isMobile ? "1fr" : "1.08fr 1fr",
+      gap: isMobile ? "12px" : "17px",
       alignItems: "stretch",
     },
 
     checkInBox: {
-      background: "#17191c",
-      padding: isMobile ? "18px" : "22px 24px",
-      borderRadius: "12px",
+      background:
+        "linear-gradient(135deg, #ffffff 0%, #f8fbf6 100%)",
+      padding: isMobile ? "20px" : "24px 26px",
+      borderRadius: "17px",
       display: "flex",
       flexDirection: isMobile ? "column" : "row",
       justifyContent: "space-between",
       alignItems: isMobile ? "stretch" : "center",
-      gap: isMobile ? "14px" : "16px",
+      gap: isMobile ? "15px" : "18px",
+      border: "1px solid #e1e9e2",
+      boxShadow: "0 9px 28px rgba(31,51,39,0.06)",
     },
-    checkInLeft: { display: "flex", alignItems: "center", gap: "10px" },
+
+    checkInLeft: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+    },
+
     pulseDot: {
       width: "9px",
       height: "9px",
       borderRadius: "50%",
-      background: "#c8ff4d",
+      background: "#9fc63b",
       flexShrink: 0,
       animation: "gs-pulse 1.8s infinite",
     },
-    checkInText: { margin: 0, color: "#c3c6cb", fontSize: "14px" },
+
+    checkInText: {
+      margin: 0,
+      color: "#425047",
+      fontSize: "14px",
+      fontWeight: 600,
+    },
 
     weekCard: {
-      background: "#17191c",
-      borderRadius: "12px",
-      padding: isMobile ? "18px" : "20px 22px",
+      background: "#ffffff",
+      borderRadius: "17px",
+      padding: isMobile ? "19px" : "21px 23px",
       display: "flex",
       flexDirection: "column",
       gap: "14px",
+      border: "1px solid #e1e9e2",
+      boxShadow: "0 9px 28px rgba(31,51,39,0.06)",
     },
+
     weekCardTop: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
     },
-    weekCardLabel: { fontSize: "12px", color: "#8d9096", margin: 0, fontWeight: 500 },
+
+    weekCardLabel: {
+      fontSize: "12px",
+      color: "#7a867d",
+      margin: 0,
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.5px",
+    },
+
     weekCardValue: {
       fontFamily: displayFont,
-      fontSize: "20px",
-      color: "#f4f2ee",
+      fontSize: "21px",
+      color: "#17221c",
       margin: "2px 0 0 0",
-      fontWeight: 600,
+      fontWeight: 700,
     },
+
     weekBars: {
       display: "flex",
       justifyContent: "space-between",
@@ -1033,6 +1105,7 @@ function getStyles(isMobile) {
       gap: "6px",
       height: "64px",
     },
+
     weekBarCol: {
       display: "flex",
       flexDirection: "column",
@@ -1042,138 +1115,190 @@ function getStyles(isMobile) {
       height: "100%",
       justifyContent: "flex-end",
     },
+
     weekBarTrack: {
       width: "100%",
-      maxWidth: "18px",
+      maxWidth: "19px",
       height: "44px",
       display: "flex",
       alignItems: "flex-end",
-      background: "#1c1f22",
-      borderRadius: "4px",
+      background: "#edf2ee",
+      borderRadius: "7px",
       overflow: "hidden",
     },
+
     weekBarFill: {
       width: "100%",
       minHeight: "3px",
-      borderRadius: "4px",
+      borderRadius: "7px",
     },
-    weekBarLabel: { fontSize: "10px", fontWeight: 700 },
+
+    weekBarLabel: {
+      fontSize: "10px",
+      fontWeight: 800,
+    },
+
     streakRow: {
       display: "flex",
       alignItems: "center",
       gap: "8px",
       fontSize: "12px",
-      color: "#c3c6cb",
-      borderTop: "1px solid #24272b",
+      color: "#59665d",
+      borderTop: "1px solid #edf1ee",
       paddingTop: "12px",
+      fontWeight: 600,
     },
 
     tableWrapper: {
-      background: "#17191c",
-      borderRadius: "12px",
+      background: "#ffffff",
+      borderRadius: "16px",
       overflow: isMobile ? "auto" : "hidden",
+      border: "1px solid #e1e9e2",
+      boxShadow: "0 8px 26px rgba(31,51,39,0.055)",
     },
+
     table: {
       width: "100%",
       minWidth: isMobile ? "480px" : "auto",
       borderCollapse: "collapse",
     },
-    tr: { borderBottom: "1px solid #24272b" },
+
+    tr: {
+      borderBottom: "1px solid #edf1ee",
+    },
+
     th: {
       textAlign: "left",
-      padding: isMobile ? "11px 12px" : "13px 18px",
-      background: "#1c1f22",
-      color: "#8d9096",
+      padding: isMobile ? "12px 12px" : "14px 18px",
+      background: "#f7faf7",
+      color: "#718077",
       fontSize: "12px",
-      fontWeight: 600,
+      fontWeight: 800,
       whiteSpace: "nowrap",
+      textTransform: "uppercase",
+      letterSpacing: "0.45px",
     },
-    td: {
-      padding: isMobile ? "11px 12px" : "13px 18px",
-      fontSize: "13px",
-      color: "#e4e2dd",
-      whiteSpace: "nowrap",
-    },
-    emptyText: { padding: "20px 4px", color: "#6b7078", fontSize: "13px", margin: 0 },
 
-    cardListWrap: { display: "flex", flexDirection: "column", gap: "10px" },
-    recordCard: {
-      background: "#17191c",
-      borderRadius: "12px",
-      padding: "14px 16px",
+    td: {
+      padding: isMobile ? "12px 12px" : "14px 18px",
+      fontSize: "13px",
+      color: "#334138",
+      whiteSpace: "nowrap",
+      fontWeight: 500,
+    },
+
+    emptyText: {
+      padding: "20px 4px",
+      color: "#87938a",
+      fontSize: "13px",
+      margin: 0,
+    },
+
+    cardListWrap: {
       display: "flex",
       flexDirection: "column",
-      gap: "8px",
+      gap: "10px",
     },
+
+    recordCard: {
+      background: "#ffffff",
+      borderRadius: "14px",
+      padding: "15px 16px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "9px",
+      border: "1px solid #e1e9e2",
+      boxShadow: "0 6px 20px rgba(31,51,39,0.045)",
+    },
+
     recordCardTopRow: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "2px",
     },
+
     recordCardTitle: {
       fontFamily: displayFont,
-      fontSize: "15px",
-      fontWeight: 600,
-      color: "#f4f2ee",
+      fontSize: "16px",
+      fontWeight: 700,
+      color: "#17221c",
     },
+
     recordCardRow: {
       display: "flex",
       justifyContent: "space-between",
       fontSize: "13px",
+      gap: "14px",
     },
-    recordCardLabel: { color: "#8d9096" },
-    recordCardValue: { color: "#e4e2dd", fontWeight: 500, textAlign: "right" },
+
+    recordCardLabel: {
+      color: "#7a867d",
+      fontWeight: 600,
+    },
+
+    recordCardValue: {
+      color: "#334138",
+      fontWeight: 600,
+      textAlign: "right",
+    },
 
     primaryBtn: {
-      padding: "12px 22px",
-      background: "#ff5a1f",
-      color: "#101214",
+      padding: "12px 23px",
+      background: "#b8df45",
+      color: "#172018",
       border: "none",
-      borderRadius: "8px",
+      borderRadius: "11px",
       cursor: "pointer",
-      fontWeight: 700,
+      fontWeight: 800,
       fontSize: "13px",
       width: isMobile ? "100%" : "auto",
+      boxShadow: "0 8px 18px rgba(151,185,52,0.22)",
     },
+
     dangerBtn: {
-      padding: "12px 22px",
-      background: "transparent",
-      color: "#ff5c72",
-      border: "1px solid #4a2a30",
-      borderRadius: "8px",
+      padding: "12px 23px",
+      background: "#fff4f3",
+      color: "#c54e43",
+      border: "1px solid #f0c7c3",
+      borderRadius: "11px",
       cursor: "pointer",
-      fontWeight: 700,
+      fontWeight: 800,
       fontSize: "13px",
       width: isMobile ? "100%" : "auto",
     },
+
     statusBadge: {
-      padding: "4px 10px",
+      padding: "5px 10px",
       borderRadius: "20px",
       fontSize: "11px",
-      fontWeight: 700,
+      fontWeight: 800,
       textTransform: "capitalize",
       whiteSpace: "nowrap",
     },
+
     statusActive: {
-      background: "rgba(200,255,77,0.12)",
-      color: "#c8ff4d",
-      border: "1px solid rgba(200,255,77,0.25)",
+      background: "#eef8d8",
+      color: "#5b7d12",
+      border: "1px solid #d7e9a8",
     },
+
     statusInactive: {
-      background: "#1e2124",
-      color: "#8d9096",
-      border: "1px solid #2a2d31",
+      background: "#f2f5f3",
+      color: "#7c887f",
+      border: "1px solid #e1e7e2",
     },
+
     toast: {
-      background: "#1c1f22",
-      color: "#c8ff4d",
-      border: "1px solid rgba(200,255,77,0.25)",
-      padding: "11px 16px",
-      borderRadius: "8px",
+      background: "#ffffff",
+      color: "#55730e",
+      border: "1px solid #d7e8ac",
+      boxShadow: "0 10px 25px rgba(31,51,39,0.08)",
+      padding: "12px 16px",
+      borderRadius: "11px",
       marginBottom: "18px",
       fontSize: "13px",
-      fontWeight: 600,
+      fontWeight: 700,
     },
 
     bottomNav: {
@@ -1182,40 +1307,51 @@ function getStyles(isMobile) {
       left: 0,
       right: 0,
       display: "flex",
-      background: "#17191c",
-      borderTop: "1px solid #24272b",
-      padding: "6px 4px calc(6px + env(safe-area-inset-bottom))",
+      background: "rgba(255,255,255,0.96)",
+      backdropFilter: "blur(12px)",
+      borderTop: "1px solid #dfe7e1",
+      padding: "7px 4px calc(7px + env(safe-area-inset-bottom))",
       zIndex: 20,
+      boxShadow: "0 -8px 22px rgba(31,51,39,0.07)",
     },
+
     bottomTab: {
       flex: 1,
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       gap: "3px",
-      padding: "6px 2px",
-      borderRadius: "10px",
-      color: "#8d9096",
+      padding: "7px 2px",
+      borderRadius: "11px",
+      color: "#7a867d",
       cursor: "pointer",
     },
+
     bottomTabActive: {
-      color: "#ff5a1f",
+      color: "#5f7d13",
+      background: "#f0f8df",
     },
-    bottomTabLabel: { fontSize: "10px", fontWeight: 600 },
+
+    bottomTabLabel: {
+      fontSize: "10px",
+      fontWeight: 700,
+    },
 
     skeletonHeading: {
-      height: isMobile ? "22px" : "30px",
-      width: "220px",
-      borderRadius: "6px",
-      marginBottom: isMobile ? "16px" : "26px",
+      height: isMobile ? "26px" : "34px",
+      width: "230px",
+      borderRadius: "8px",
+      marginBottom: isMobile ? "17px" : "28px",
     },
+
     skeletonStatCard: {
-      height: isMobile ? "72px" : "80px",
-      borderRadius: "10px",
+      height: isMobile ? "78px" : "86px",
+      borderRadius: "16px",
     },
+
     skeletonWide: {
-      height: isMobile ? "140px" : "160px",
-      borderRadius: "12px",
+      height: isMobile ? "150px" : "170px",
+      borderRadius: "17px",
     },
   };
 }
