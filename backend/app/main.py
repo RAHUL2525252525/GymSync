@@ -72,6 +72,29 @@ app.include_router(dashboard.router)
 def root():
     return {"message": "Gym Membership Tracker API is running"}
 
+from pathlib import Path
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+
+class SPAStaticFiles(StaticFiles):
+    async def get_response(self, path, scope):
+        try:
+            return await super().get_response(path, scope)
+        except StarletteHTTPException as ex:
+            if ex.status_code == 404:
+                return await super().get_response("index.html", scope)
+            raise
+
+
+root = FastAPI()
+root.mount("/api", app)   # your existing API now lives at /api
+
+static_dir = Path(__file__).resolve().parent.parent / "static"
+if static_dir.is_dir():
+    root.mount("/", SPAStaticFiles(directory=static_dir, html=True), name="static")
+
 
 @app.get("/health")
 def health_check():
